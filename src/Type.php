@@ -2,7 +2,7 @@
 
 namespace Pace;
 
-use Doctrine\Common\Inflector\Inflector;
+use Doctrine\Inflector\Inflector;
 
 class Type
 {
