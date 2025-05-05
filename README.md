@@ -7,8 +7,14 @@ An unofficial PHP client library for EFI Pace's SOAP API, created by a Pace admi
 Install via [Composer](http://getcomposer.org/):
 
 ```
-$ composer require robgridley/pace-api
+$ composer require 613-msechrest/pace-api
 ```
+
+This fork adds support for PHP 8.4 and Laravel 12, while maintaining backward compatibility with PHP 7.4.
+
+## Original Package
+
+This is a fork of [robgridley/pace-api](https://github.com/robgridley/pace-api) with added support for newer PHP and Laravel versions.
 
 ## Testing
 
@@ -22,8 +28,8 @@ $ composer test
 
 ## To-dos
 
-* Write tests for remaining classes
-* Implement remaining Pace services (e.g. "InvokeProcess")
+- Write tests for remaining classes
+- Implement remaining Pace services (e.g. "InvokeProcess")
 
 ## Configuration
 
@@ -356,7 +362,7 @@ Fluently run reports using the report builder.
 
 ### Passing parameters
 
-Pass parameters to the report using the ``parameter()`` or ``namedParameter()`` methods. The ``parameter()`` method accepts two arguments: the report parameter ID and the value.
+Pass parameters to the report using the `parameter()` or `namedParameter()` methods. The `parameter()` method accepts two arguments: the report parameter ID and the value.
 
 ```php
 $pace->report(1000)
@@ -365,7 +371,7 @@ $pace->report(1000)
    ->parameter(10003, 'D');
 ```
 
-The ``namedParameter()`` method looks up the report parameter ID by its name.
+The `namedParameter()` method looks up the report parameter ID by its name.
 
 ```php
 $pace->report(1000)
@@ -376,7 +382,7 @@ $pace->report(1000)
 
 ### Reports requiring a base object
 
-Some reports require a base object. Use the ``baseObjectKey()`` method to pass a model or primary key.
+Some reports require a base object. Use the `baseObjectKey()` method to pass a model or primary key.
 
 ```php
 $job = $pace->model('Job')->read('90000');
@@ -388,7 +394,7 @@ $pace->report(100)
 
 ### Getting the report
 
-The report builder ``get()`` method returns a ``Report\File`` instance, which has two public methods: ``getContent()`` returns the report file content and ``getMediaType()`` returns the media (MIME) type of the file. 
+The report builder `get()` method returns a `Report\File` instance, which has two public methods: `getContent()` returns the report file content and `getMediaType()` returns the media (MIME) type of the file.
 
 ```php
 $file = $pace->report(200)->get();
@@ -400,7 +406,7 @@ if ($file->getMediaType() == 'application/vnd.ms-excel') {
 
 ### Printing the report
 
-Use the ``print()`` method to print the report to the default printer. If the report does not have a default printer configured, the Pace API will throw a SOAP error.
+Use the `print()` method to print the report to the default printer. If the report does not have a default printer configured, the Pace API will throw a SOAP error.
 
 ```php
 $pace->report(100)
