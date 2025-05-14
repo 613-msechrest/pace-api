@@ -39,6 +39,13 @@ class Builder
     protected $sorts = [];
 
     /**
+     * The maximum number of records to return.
+     *
+     * @var int|null
+     */
+    protected $limit = null;
+
+    /**
      * The Pace model instance to perform the find request on.
      *
      * @var Model
@@ -109,13 +116,43 @@ class Builder
     }
 
     /**
+     * Set the "limit" value of the query.
+     *
+     * @param int $value
+     * @return self
+     */
+    public function limit($value)
+    {
+        $this->limit = max(0, (int) $value);
+
+        return $this;
+    }
+
+    /**
+     * Alias for the "limit" method.
+     *
+     * @param int $value
+     * @return self
+     */
+    public function take($value)
+    {
+        return $this->limit($value);
+    }
+
+    /**
      * Perform the find request.
      *
      * @return \Pace\KeyCollection
      */
     public function find()
     {
-        return $this->model->find($this->toXPath(), $this->toXPathSort());
+        $results = $this->model->find($this->toXPath(), $this->toXPathSort());
+
+        if ($this->limit !== null && $results->count() > $this->limit) {
+            return $results->slice(0, $this->limit);
+        }
+
+        return $results;
     }
 
     /**

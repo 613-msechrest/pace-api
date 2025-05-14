@@ -156,4 +156,38 @@ class BuilderTest extends TestCase
         $this->expectException(ModelNotFoundException::class);
         (new Builder($model))->firstOrFail();
     }
+
+    public function testLimitMethod()
+    {
+        $model = Mockery::mock(Model::class);
+        $collection = Mockery::mock(KeyCollection::class);
+        $limitedCollection = Mockery::mock(KeyCollection::class);
+        
+        $model->shouldReceive('find')->once()->andReturn($collection);
+        $collection->shouldReceive('count')->once()->andReturn(10);
+        $collection->shouldReceive('slice')->with(0, 5)->once()->andReturn($limitedCollection);
+        
+        $builder = new Builder($model);
+        $builder->filter('@active', true);
+        $builder->limit(5);
+        
+        $result = $builder->find();
+        $this->assertSame($limitedCollection, $result);
+    }
+
+    public function testTakeMethod()
+    {
+        $model = Mockery::mock(Model::class);
+        $collection = Mockery::mock(KeyCollection::class);
+        
+        $model->shouldReceive('find')->once()->andReturn($collection);
+        $collection->shouldReceive('count')->once()->andReturn(3);
+        
+        $builder = new Builder($model);
+        $builder->filter('@active', true);
+        $builder->take(5);
+        
+        $result = $builder->find();
+        $this->assertSame($collection, $result);
+    }
 }
