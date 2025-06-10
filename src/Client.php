@@ -95,7 +95,7 @@ class Client
      * @param array|null $newParent
      * @return array
      */
-    public function cloneObject($object, array $attributes, array $newAttributes, $newKey = null, array $newParent = null)
+    public function cloneObject($object, array $attributes, array $newAttributes, $newKey = null, array|null $newParent = null)
     {
         return $this->service('CloneObject')->clone($object, $attributes, $newAttributes, $newKey, $newParent);
     }
@@ -131,7 +131,7 @@ class Client
      * @param array|null $sort
      * @return array
      */
-    public function findObjects($object, $filter, array $sort = null)
+    public function findObjects($object, $filter, array|null $sort = null)
     {
         if (is_null($sort)) {
             return $this->service('FindObjects')->find($object, $filter);
@@ -176,6 +176,18 @@ class Client
         }
 
         return new ReportBuilder($this->service('ReportService'), $report);
+    }
+
+    /**
+     * Invoke an action.
+     *
+     * @param string action
+     * @param object|array $object
+     * @return \stdClass
+     */
+    public function invokeAction($action, $object)
+    {
+        return $this->service('InvokeAction')->invokeAction($action, $object);
     }
 
     /**
