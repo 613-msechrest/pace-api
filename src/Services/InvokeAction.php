@@ -10,15 +10,15 @@ class InvokeAction extends Service
      * Invoke action.
      *
      * @param string $action
-     * @param array $attributes
-     * @return array
+     * @param object $object
+     * @return mixed
      */
-    public function invokeAction($action, $key)
+    public function invokeAction($action, $object)
     {
-	$request = ['in0' => $key];
+	    $request = ['in0' => $object];
 
         $response = $this->soap->{$action}($request);
 
-        return (array)$response->out;
+        return $response->out;
     }
 }
