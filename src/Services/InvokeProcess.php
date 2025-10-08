@@ -10,13 +10,15 @@ class InvokeProcess extends Service
      * Invoke process.
      *
      * @param string $process
-     * @param array $parameters
+     * @param array $parameters Array of XPath expressions for object identification
      * @return mixed
      */
-    public function invokeProcess($process, ...$parameters)
+    public function invokeProcess($process, $parameters)
     {
-	    $request = [];
+        $request = [];
 
+        // Build request array from parameters array
+        // Parameters should be XPath expressions for object identification
         foreach ($parameters as $index => $parameter) {
             $request["in{$index}"] = $parameter;
         }

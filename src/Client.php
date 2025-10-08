@@ -199,7 +199,7 @@ class Client
      */
     public function invokeProcess($process, ...$parameters)
     {
-        return $this->service('InvokeProcess')->invokeProcess($process, ...$parameters);
+        return $this->service('InvokeProcess')->invokeProcess($process, $parameters);
     }
 
     /**

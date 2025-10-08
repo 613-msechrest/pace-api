@@ -73,7 +73,8 @@ class Factory implements FactoryContract
     protected function getOptions()
     {
         return array_merge($this->options, [
-            'typemap' => $this->getTypeMappings()
+            'typemap' => $this->getTypeMappings(),
+            'soap_version' => SOAP_1_2
         ]);
     }
 
