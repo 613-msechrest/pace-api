@@ -191,6 +191,18 @@ class Client
     }
 
     /**
+     * Invoke a process.
+     *
+     * @param string $process
+     * @param mixed ...$parameters
+     * @return \stdClass
+     */
+    public function invokeProcess($process, ...$parameters)
+    {
+        return $this->service('InvokeProcess')->invokeProcess($process, ...$parameters);
+    }
+
+    /**
      * Get an instance of the specified service.
      *
      * @param string $name
