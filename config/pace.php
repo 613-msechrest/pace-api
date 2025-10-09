@@ -39,4 +39,16 @@ return [
 
     'scheme' => env('PACE_SCHEME', 'https'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | API Protocol
+    |--------------------------------------------------------------------------
+    |
+    | Choose between SOAP and REST API protocols.
+    | Supported: "soap", "rest"
+    |
+    */
+
+    'protocol' => env('PACE_PROTOCOL', 'soap'),
+
 ];
