@@ -20,7 +20,7 @@ class CustomizationService extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->get('/CustomizationService/getSettings', $params);
+        $response = $this->http->get('CustomizationService/getSettings', $params);
 
         return $response;
     }
@@ -42,7 +42,7 @@ class CustomizationService extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->put('/CustomizationService/updateSettings', $data, $params);
+        $response = $this->http->put('CustomizationService/updateSettings', $data, $params);
 
         return $response;
     }

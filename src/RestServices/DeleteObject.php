@@ -24,7 +24,7 @@ class DeleteObject extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->delete("/DeleteObject/delete{$object}", $params);
+        $response = $this->http->delete("DeleteObject/delete{$object}", $params);
 
         return $response;
     }

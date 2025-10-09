@@ -25,7 +25,7 @@ class FindObjects extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->get('/FindObjects/find', $params);
+        $response = $this->http->get('FindObjects/find', $params);
 
         return $response;
     }
@@ -53,7 +53,7 @@ class FindObjects extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->post('/FindObjects/findAndSort', $data, $params);
+        $response = $this->http->post('FindObjects/findAndSort', $data, $params);
 
         return $response;
     }

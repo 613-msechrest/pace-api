@@ -23,7 +23,7 @@ class ReportService extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->post('/ReportService/executeReport', $data, $params);
+        $response = $this->http->post('ReportService/executeReport', $data, $params);
 
         return $response;
     }
@@ -44,6 +44,6 @@ class ReportService extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $this->http->post('/ReportService/printReport', $data, $params);
+        $this->http->post('ReportService/printReport', $data, $params);
     }
 }

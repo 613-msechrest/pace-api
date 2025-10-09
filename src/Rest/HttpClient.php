@@ -76,9 +76,13 @@ class HttpClient
      * @param array $params
      * @return array
      */
-    public function get($endpoint, array $params = [])
+    public function get($endpoint, array $params = [], array $headers = [])
     {
-        return $this->request('GET', $endpoint, ['query' => $params]);
+        $options = ['query' => $params];
+        if (!empty($headers)) {
+            $options['headers'] = $headers;
+        }
+        return $this->request('GET', $endpoint, $options);
     }
 
     /**
@@ -141,7 +145,16 @@ class HttpClient
 
             $response = $this->client->request($method, $endpoint, $options);
 
-            return json_decode($response->getBody()->getContents(), true);
+            $body = $response->getBody()->getContents();
+            
+            // Try to decode as JSON, fall back to raw string
+            $decoded = json_decode($body, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return $decoded;
+            }
+            
+            // Return raw string if not valid JSON
+            return $body;
 
         } catch (ClientException $e) {
             // Handle 4xx errors
@@ -153,6 +166,9 @@ class HttpClient
             // Handle other request errors
             $this->handleRequestError($e);
         }
+        
+        // This should never be reached due to exceptions being thrown above
+        return null;
     }
 
     /**

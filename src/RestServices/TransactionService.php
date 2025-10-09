@@ -35,9 +35,9 @@ class TransactionService extends RestService
      */
     public function start(int $timeout = 60)
     {
-        $data = ['timeout' => $timeout];
+        $params = ['timeOutInMinutes' => $timeout];
 
-        $response = $this->http->post('/TransactionService/startTransaction', $data);
+        $response = $this->http->get('TransactionService/startTransaction', $params, ['Accept' => 'text/plain']);
 
         return $response['transactionId'] ?? $response;
     }
@@ -55,7 +55,7 @@ class TransactionService extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $this->http->post('/TransactionService/rollbackTransaction', [], $params);
+        $this->http->get('TransactionService/rollback', $params);
     }
 
     /**
@@ -71,6 +71,6 @@ class TransactionService extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $this->http->post('/TransactionService/commitTransaction', [], $params);
+        $this->http->get('TransactionService/commit', $params);
     }
 }

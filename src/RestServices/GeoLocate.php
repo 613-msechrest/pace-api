@@ -21,7 +21,7 @@ class GeoLocate extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->get('/GeoLocate/locate', $params);
+        $response = $this->http->get('GeoLocate/locate', $params);
 
         return $response;
     }
@@ -43,7 +43,7 @@ class GeoLocate extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->post('/GeoLocate/locateMultiple', $data, $params);
+        $response = $this->http->post('GeoLocate/locateMultiple', $data, $params);
 
         return $response;
     }

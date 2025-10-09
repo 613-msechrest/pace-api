@@ -20,7 +20,7 @@ class MobileGeneral extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->get('/mobileGeneral/getConfiguration', $params);
+        $response = $this->http->get('mobileGeneral/getConfiguration', $params);
 
         return $response;
     }
@@ -40,7 +40,7 @@ class MobileGeneral extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->get('/mobileGeneral/getUserPreferences', $params);
+        $response = $this->http->get('mobileGeneral/getUserPreferences', $params);
 
         return $response;
     }
@@ -66,7 +66,7 @@ class MobileGeneral extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->put('/mobileGeneral/updateUserPreferences', $data, $params);
+        $response = $this->http->put('mobileGeneral/updateUserPreferences', $data, $params);
 
         return $response;
     }

@@ -67,7 +67,7 @@ describe('REST Client', function () {
         
         $version = $restClient->version();
         
-        expect($version)->toBeArray();
+        expect($version)->toBeString();
         expect($version)->not->toBeEmpty();
     });
 });
@@ -93,12 +93,17 @@ describe('Protocol Comparison', function () {
         $soapVersion = $soapClient->version();
         $restVersion = $restClient->version();
         
+        // SOAP returns array, REST returns string
         expect($soapVersion)->toBeArray();
-        expect($restVersion)->toBeArray();
+        expect($restVersion)->toBeString();
         
         // Both should return version information
         expect($soapVersion)->not->toBeEmpty();
         expect($restVersion)->not->toBeEmpty();
+        
+        // Both should contain the same version string
+        $soapVersionString = $soapVersion['string'] ?? '';
+        expect($soapVersionString)->toBe($restVersion);
     });
 });
 
@@ -110,7 +115,7 @@ describe('Service Provider Pattern', function () {
             private $config;
             
             public function __construct() {
-                $this->config = require __DIR__ . '/../config.php';
+                $this->config = ['pace' => require __DIR__ . '/../config.php'];
             }
             
             public function singleton($abstract, $concrete) {
@@ -126,6 +131,10 @@ describe('Service Provider Pattern', function () {
             
             public function config($key) {
                 return $this->config[$key] ?? null;
+            }
+            
+            public function setConfig($section, $key, $value) {
+                $this->config[$section][$key] = $value;
             }
         };
         
@@ -163,13 +172,12 @@ describe('Service Provider Pattern', function () {
         });
         
         // Test protocol switching
-        $config = $container->config('pace');
-        $config['protocol'] = 'rest';
+        $container->setConfig('pace', 'protocol', 'rest');
         
         $restClient = $container->make('pace.client');
         expect($restClient)->toBeInstanceOf(RestClient::class);
         
-        $config['protocol'] = 'soap';
+        $container->setConfig('pace', 'protocol', 'soap');
         $soapClient = $container->make('pace.client');
         expect($soapClient)->toBeInstanceOf(SoapClient::class);
     });

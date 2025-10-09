@@ -25,7 +25,7 @@ class MobileAuthentication extends RestService
             $data['deviceId'] = $deviceId;
         }
 
-        $response = $this->http->post('/mobileAuthentication/authenticate', $data);
+        $response = $this->http->post('mobileAuthentication/authenticate', $data);
 
         return $response;
     }
@@ -40,7 +40,7 @@ class MobileAuthentication extends RestService
     {
         $data = ['token' => $token];
 
-        $response = $this->http->post('/mobileAuthentication/refreshToken', $data);
+        $response = $this->http->post('mobileAuthentication/refreshToken', $data);
 
         return $response;
     }
@@ -55,7 +55,7 @@ class MobileAuthentication extends RestService
     {
         $data = ['token' => $token];
 
-        $response = $this->http->post('/mobileAuthentication/logout', $data);
+        $response = $this->http->post('mobileAuthentication/logout', $data);
 
         return $response;
     }

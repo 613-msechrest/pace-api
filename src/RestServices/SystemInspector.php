@@ -20,7 +20,7 @@ class SystemInspector extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->get('/SystemInspector/getSystemInfo', $params);
+        $response = $this->http->get('SystemInspector/getSystemInfo', $params);
 
         return $response;
     }
@@ -39,7 +39,7 @@ class SystemInspector extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->get('/SystemInspector/getDatabaseInfo', $params);
+        $response = $this->http->get('SystemInspector/getDatabaseInfo', $params);
 
         return $response;
     }
@@ -58,7 +58,7 @@ class SystemInspector extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->get('/SystemInspector/getPerformanceMetrics', $params);
+        $response = $this->http->get('SystemInspector/getPerformanceMetrics', $params);
 
         return $response;
     }

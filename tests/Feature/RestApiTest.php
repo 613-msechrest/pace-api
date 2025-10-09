@@ -24,7 +24,7 @@ describe('Version API', function () {
     it('can get version information', function () {
         $version = $this->client->version();
         
-        expect($version)->toBeArray();
+        expect($version)->toBeString();
         expect($version)->not->toBeEmpty();
     });
 });

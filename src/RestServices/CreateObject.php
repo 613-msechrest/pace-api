@@ -22,7 +22,7 @@ class CreateObject extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->post("/CreateObject/create{$object}", $attributes, $params);
+        $response = $this->http->post("CreateObject/create{$object}", $attributes, $params);
 
         return $response;
     }

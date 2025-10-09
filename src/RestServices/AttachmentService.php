@@ -47,7 +47,7 @@ class AttachmentService extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->post('/AttachmentService/addAttachmentFullDetails', $attachment, $params);
+        $response = $this->http->post('AttachmentService/addAttachmentFullDetails', $attachment, $params);
 
         return $response;
     }
@@ -67,7 +67,7 @@ class AttachmentService extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->get('/AttachmentService/getAttachmentFromKey', $params);
+        $response = $this->http->get('AttachmentService/getAttachmentFromKey', $params);
 
         $attachment = $response;
         $attachment['content'] = base64_decode($attachment['content']);
@@ -96,7 +96,7 @@ class AttachmentService extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->get('/AttachmentService/getAllAttachments', $params);
+        $response = $this->http->get('AttachmentService/getAllAttachments', $params);
 
         // Decode base64 content for all attachments
         foreach ($response as &$attachment) {
@@ -129,7 +129,7 @@ class AttachmentService extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->get('/AttachmentService/getAttachment', $params);
+        $response = $this->http->get('AttachmentService/getAttachment', $params);
 
         $attachment = $response;
         if (isset($attachment['content'])) {
@@ -159,7 +159,7 @@ class AttachmentService extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $this->http->delete('/AttachmentService/removeAllAttachments', $params);
+        $this->http->delete('AttachmentService/removeAllAttachments', $params);
     }
 
     /**

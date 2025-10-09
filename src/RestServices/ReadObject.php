@@ -26,7 +26,7 @@ class ReadObject extends RestService
         }
 
         try {
-            $response = $this->http->get("/ReadObject/read{$object}", $params);
+            $response = $this->http->get("ReadObject/read{$object}", $params);
             return $response;
 
         } catch (\Exception $exception) {

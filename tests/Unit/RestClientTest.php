@@ -27,7 +27,7 @@ it('can create a REST client', function () {
 it('can get version information', function () {
     $version = $this->client->version();
     
-    expect($version)->toBeArray();
+    expect($version)->toBeString();
     expect($version)->not->toBeEmpty();
 });
 

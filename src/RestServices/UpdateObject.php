@@ -22,7 +22,7 @@ class UpdateObject extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->put("/UpdateObject/update{$object}", $attributes, $params);
+        $response = $this->http->put("UpdateObject/update{$object}", $attributes, $params);
 
         return $response;
     }

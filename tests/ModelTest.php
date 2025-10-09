@@ -14,11 +14,12 @@ class ModelTest extends TestCase
         Mockery::close();
     }
 
-    public function testCannotBeConstructedWithCamelCase()
+    public function testCanBeConstructedWithCamelCase()
     {
         $client = Mockery::mock(Client::class);
-        $this->expectException(InvalidArgumentException::class);
-        new Model($client, 'salesPerson');
+        $model = new Model($client, 'salesPerson');
+        $this->assertInstanceOf(Model::class, $model);
+        $this->assertEquals('salesPerson', $model->getType());
     }
 
     public function testManipulatesProperties()

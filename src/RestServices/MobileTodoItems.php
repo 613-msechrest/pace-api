@@ -21,7 +21,7 @@ class MobileTodoItems extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->get('/mobileTodoItems/getTodoItems', $params);
+        $response = $this->http->get('mobileTodoItems/getTodoItems', $params);
 
         return $response;
     }
@@ -47,7 +47,7 @@ class MobileTodoItems extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->post('/mobileTodoItems/createTodoItem', $data, $params);
+        $response = $this->http->post('mobileTodoItems/createTodoItem', $data, $params);
 
         return $response;
     }
@@ -70,7 +70,7 @@ class MobileTodoItems extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->put('/mobileTodoItems/updateTodoItem', $data, $params);
+        $response = $this->http->put('mobileTodoItems/updateTodoItem', $data, $params);
 
         return $response;
     }
@@ -90,7 +90,7 @@ class MobileTodoItems extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->delete('/mobileTodoItems/deleteTodoItem', $params);
+        $response = $this->http->delete('mobileTodoItems/deleteTodoItem', $params);
 
         return $response;
     }
@@ -112,7 +112,7 @@ class MobileTodoItems extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->put('/mobileTodoItems/completeTodoItem', $data, $params);
+        $response = $this->http->put('mobileTodoItems/completeTodoItem', $data, $params);
 
         return $response;
     }
