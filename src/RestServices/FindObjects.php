@@ -25,6 +25,9 @@ class FindObjects extends RestService
             $params['txnId'] = $txnId;
         }
 
+        // Debug: log the parameters
+        error_log("FindObjects params: " . json_encode($params));
+
         $response = $this->http->get('FindObjects/find', $params);
 
         return $response;

@@ -185,13 +185,13 @@ class RestClient
      * Find objects matching the specified criteria.
      *
      * @param string $object
-     * @param array $criteria
+     * @param string $filter
      * @param array $options
      * @return array
      */
-    public function findObjects($object, $criteria = [], $options = [])
+    public function findObjects($object, $filter, $options = [])
     {
-        return $this->service('FindObjects')->find($object, $criteria, $options);
+        return $this->service('FindObjects')->find($object, $filter);
     }
 
     /**

@@ -135,6 +135,22 @@ describe('Object-Based API', function () {
         
         expect($jobs)->toBeInstanceOf(\Pace\RestKeyCollection::class);
     });
+    
+    it('can filter with date equality', function () {
+        $customers = $this->client->Customer
+            ->filter('@dateSetup', '=', '2023-05-24')
+            ->get();
+        
+        expect($customers)->toBeInstanceOf(\Pace\RestKeyCollection::class);
+    });
+    
+    it('can filter with Carbon date objects', function () {
+        $customers = $this->client->Customer
+            ->filter('@dateSetup', '=', \Carbon\Carbon::parse('2023-05-24'))
+            ->get();
+        
+        expect($customers)->toBeInstanceOf(\Pace\RestKeyCollection::class);
+    });
 });
 
 describe('Mobile Services', function () {

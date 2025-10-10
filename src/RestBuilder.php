@@ -384,7 +384,7 @@ class RestBuilder
     {
         switch (true) {
             case ($value instanceof DateTime):
-                return $this->formatDate($value);
+                return "\"" . $value->format('Y-m-d') . "\"";
 
             case (is_int($value)):
             case (is_float($value)):
@@ -396,17 +396,6 @@ class RestBuilder
             default:
                 return "\"$value\"";
         }
-    }
-
-    /**
-     * Convert DateTime instance to XPath date function.
-     *
-     * @param DateTime $dt
-     * @return string
-     */
-    protected function formatDate(DateTime $dt)
-    {
-        return $dt->format('\d\a\t\e(Y, n, j)');
     }
 
     /**
