@@ -383,6 +383,9 @@ class RestBuilder
     protected function formatValue($value)
     {
         switch (true) {
+            case ($value === null):
+                return 'null';
+
             case ($value instanceof DateTime):
                 return "\"" . $value->format('Y-m-d') . "\"";
 
