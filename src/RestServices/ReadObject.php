@@ -26,7 +26,7 @@ class ReadObject extends RestService
         }
 
         try {
-            $response = $this->http->get("ReadObject/read{$object}", $params);
+            $response = $this->http->post("ReadObject/read{$object}", [], $params);
             return $response;
 
         } catch (\Exception $exception) {
@@ -46,7 +46,8 @@ class ReadObject extends RestService
      */
     protected function isObjectNotFound(\Exception $exception)
     {
-        return strpos($exception->getMessage(), 'Unable to locate object') === 0 ||
-               $exception->getCode() === 404;
+        return strpos($exception->getMessage(), 'Unable to locate object') !== false ||
+               $exception->getCode() === 404 ||
+               $exception->getCode() === 500;
     }
 }

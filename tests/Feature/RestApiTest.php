@@ -73,7 +73,7 @@ describe('Object CRUD Operations', function () {
     });
     
     it('can find objects with filter', function () {
-        $results = $this->client->findObjects('Customer', 'name like "Test%"');
+        $results = $this->client->findObjects('Customer', "@id > 0");
         
         expect($results)->toBeArray();
     });
@@ -149,12 +149,18 @@ describe('Error Handling', function () {
 
 describe('HTTP Client', function () {
     it('can make direct HTTP requests', function () {
-        $httpClient = (new RestFactory())->make("https://{$this->config['host']}/rpc/rest/services");
-        $httpClient->setOptions(['auth' => [$this->config['login'], $this->config['password']]]);
+        $httpClient = (new RestFactory())->make("https://{$this->config['host']}/rpc/rest/services/");
+        $httpClient->setOptions([
+            'auth' => [$this->config['login'], $this->config['password']],
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json'
+            ]
+        ]);
         
-        $response = $httpClient->get('/Version/get');
+        $response = $httpClient->get('Version/getVersion');
         
-        expect($response)->toBeArray();
+        expect($response)->toBeString();
         expect($response)->not->toBeEmpty();
     });
 });

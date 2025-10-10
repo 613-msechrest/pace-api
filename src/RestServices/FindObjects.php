@@ -17,8 +17,8 @@ class FindObjects extends RestService
     public function find($object, $filter, $txnId = null)
     {
         $params = [
-            'object' => $object,
-            'filter' => $filter,
+            'type' => $object,
+            'xpath' => $filter,
         ];
 
         if ($txnId !== null) {
