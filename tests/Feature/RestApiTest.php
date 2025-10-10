@@ -151,6 +151,22 @@ describe('Object-Based API', function () {
         
         expect($customers)->toBeInstanceOf(\Pace\RestKeyCollection::class);
     });
+
+    it('can filter GLAccountingPeriod with date fields', function () {
+        // Test filtering by startDate and endDate using Carbon objects
+        $periods = $this->client->GLAccountingPeriod
+            ->filter('@startDate', \Carbon\Carbon::parse('2025-10-01'))
+            ->filter('@endDate', \Carbon\Carbon::parse('2025-10-31'))
+            ->get();
+        
+        expect($periods)->toBeInstanceOf(\Pace\RestKeyCollection::class);
+        expect($periods->count())->toBeGreaterThan(0);
+        
+        // Verify the first result has the expected dates
+        $firstPeriod = $periods->first();
+        expect($firstPeriod->startDate)->toBe('2025-10-01');
+        expect($firstPeriod->endDate)->toBe('2025-10-31');
+    });
 });
 
 describe('Mobile Services', function () {

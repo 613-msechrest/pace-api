@@ -388,7 +388,7 @@ class RestBuilder
 
             case ($value instanceof DateTime):
                 // Use date() function syntax as documented in Pace API
-                return $value->format('date( Y, n, j )');
+                return sprintf('date( %d, %d, %d )', $value->format('Y'), $value->format('n'), $value->format('j'));
 
             case (is_int($value)):
             case (is_float($value)):
