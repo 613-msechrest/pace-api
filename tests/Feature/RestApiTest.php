@@ -79,6 +79,64 @@ describe('Object CRUD Operations', function () {
     });
 });
 
+describe('Object-Based API', function () {
+    it('can read objects using object-based syntax', function () {
+        $customer = $this->client->customer->read(999999);
+        
+        expect($customer)->toBeNull();
+    });
+    
+    it('can filter objects using object-based syntax', function () {
+        $customers = $this->client->Customer
+            ->filter('@id', '>', 0)
+            ->limit(5)
+            ->get();
+        
+        expect($customers)->toBeInstanceOf(\Pace\RestKeyCollection::class);
+    });
+    
+    it('can get first filtered object', function () {
+        $customer = $this->client->Customer
+            ->filter('@id', '>', 0)
+            ->first();
+        
+        // This might be null if no customers exist, which is fine for testing
+        expect($customer)->toBeInstanceOf(\Pace\RestModel::class);
+    });
+    
+    it('can use contains filter', function () {
+        $customers = $this->client->Customer
+            ->contains('@custName', 'Test')
+            ->get();
+        
+        expect($customers)->toBeInstanceOf(\Pace\RestKeyCollection::class);
+    });
+    
+    it('can chain multiple filters', function () {
+        $customers = $this->client->Customer
+            ->filter('@id', '>', 0)
+            ->filter('@customerStatus', '=', 'O')
+            ->limit(10)
+            ->get();
+        
+        expect($customers)->toBeInstanceOf(\Pace\RestKeyCollection::class);
+    });
+    
+    it('can access inventoryBin object', function () {
+        $inventoryBin = $this->client->inventoryBin->read(999999);
+        
+        expect($inventoryBin)->toBeNull();
+    });
+    
+    it('can access job object with filtering', function () {
+        $jobs = $this->client->job
+            ->filter('@job', 'S1234567')
+            ->get();
+        
+        expect($jobs)->toBeInstanceOf(\Pace\RestKeyCollection::class);
+    });
+});
+
 describe('Mobile Services', function () {
     it('can access mobile authentication service', function () {
         $auth = $this->client->mobileAuthentication();

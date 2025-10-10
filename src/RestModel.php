@@ -74,6 +74,16 @@ class RestModel implements ArrayAccess, JsonSerializable
     }
 
     /**
+     * Get the client instance.
+     *
+     * @return RestClient
+     */
+    public function getClient()
+    {
+        return $this->client;
+    }
+
+    /**
      * Get the model's primary key.
      *
      * @return mixed
@@ -185,6 +195,67 @@ class RestModel implements ArrayAccess, JsonSerializable
     }
 
     /**
+     * Read a model by its primary key.
+     *
+     * @param mixed $key
+     * @return static|null
+     */
+    public function read($key)
+    {
+        if ($key == null) {
+            return null;
+        }
+
+        $attributes = $this->client->readObject($this->type, $key);
+
+        if (is_null($attributes)) {
+            return null;
+        }
+
+        $model = new static($this->client, $this->type, $attributes);
+        return $model;
+    }
+
+    /**
+     * Read a model by its primary key or throw an exception.
+     *
+     * @param mixed $key
+     * @return static
+     * @throws \Pace\ModelNotFoundException
+     */
+    public function readOrFail($key)
+    {
+        $model = $this->read($key);
+
+        if (is_null($model)) {
+            throw new \Pace\ModelNotFoundException("{$this->type} [{$key}] does not exist.");
+        }
+
+        return $model;
+    }
+
+    /**
+     * Create a new model instance.
+     *
+     * @param array $attributes
+     * @return static
+     */
+    public function newInstance(array $attributes = [])
+    {
+        return new static($this->client, $this->type, $attributes);
+    }
+
+    /**
+     * Create a new builder instance.
+     *
+     * @return \Pace\RestBuilder
+     */
+    public function newBuilder()
+    {
+        return new \Pace\RestBuilder($this);
+    }
+
+    /**
      * Get a relationship.
      *
      * @param string $name
@@ -232,6 +303,11 @@ class RestModel implements ArrayAccess, JsonSerializable
      */
     public function __call($method, array $arguments)
     {
+        if ($this->isBuilderMethod($method)) {
+            $builder = $this->newBuilder();
+            return $builder->$method(...$arguments);
+        }
+
         // Handle relationship methods like reportParameters()
         if (strpos($method, 'report') === 0 || strpos($method, 'Report') === 0) {
             // For now, return a simple object that can handle filter() and get()
@@ -250,6 +326,26 @@ class RestModel implements ArrayAccess, JsonSerializable
         }
 
         throw new \BadMethodCallException("Method [$method] does not exist on " . static::class);
+    }
+
+    /**
+     * Determine if a dynamic call should be passed to the RestBuilder class.
+     *
+     * @param string $name
+     * @return bool
+     */
+    protected function isBuilderMethod($name)
+    {
+        if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
+            if (method_exists(\Pace\RestBuilder::class, $name)) {
+                $reflection = new \ReflectionMethod(\Pace\RestBuilder::class, $name);
+                return $reflection->isPublic();
+            } else {
+                return false;
+            }
+        } else {
+            return method_exists(\Pace\RestBuilder::class, $name) && is_callable([\Pace\RestBuilder::class, $name]);
+        }
     }
 
     /**
