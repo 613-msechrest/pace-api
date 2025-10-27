@@ -86,11 +86,42 @@ class RestModel implements ArrayAccess, JsonSerializable
     /**
      * Get the model's primary key.
      *
+     * @param string|null $keyName
      * @return mixed
      */
-    public function key()
+    public function key($keyName = null)
     {
-        return $this->attributes[Client::PRIMARY_KEY] ?? null;
+        if ($keyName) {
+            return $this->getAttribute($keyName);
+        }
+
+        $keyName = $this->guessPrimaryKeyName();
+        return $this->getAttribute($keyName);
+    }
+
+    /**
+     * Guess the primary key attribute name for the model.
+     *
+     * @return string
+     */
+    protected function guessPrimaryKeyName()
+    {
+        // Try type-specific key name first
+        if ($keyName = Type::keyName($this->type)) {
+            return $keyName;
+        }
+
+        // Try common key names
+        if ($this->hasAttribute(RestClient::PRIMARY_KEY)) {
+            return RestClient::PRIMARY_KEY;
+        }
+
+        if ($this->hasAttribute('id')) {
+            return 'id';
+        }
+
+        // Fall back to camelized type name
+        return Type::camelize($this->type);
     }
 
     /**
@@ -256,6 +287,167 @@ class RestModel implements ArrayAccess, JsonSerializable
     }
 
     /**
+     * Get a "belongs to" relationship.
+     *
+     * @param string $relatedType
+     * @param string $foreignKey
+     * @return static|null
+     */
+    public function belongsTo($relatedType, $foreignKey)
+    {
+        if ($this->isCompoundKey($foreignKey)) {
+            $key = $this->getCompoundKey($foreignKey);
+        } else {
+            $key = $this->getAttribute($foreignKey);
+        }
+
+        if (!$key) {
+            return null;
+        }
+
+        $attributes = $this->client->readObject(Type::modelify($relatedType), $key);
+        
+        if (is_null($attributes)) {
+            return null;
+        }
+
+        return new RestModel($this->client, Type::modelify($relatedType), $attributes);
+    }
+
+    /**
+     * Get a "has many" relationship.
+     *
+     * @param string $relatedType
+     * @param string $foreignKey
+     * @return \Pace\RestBuilder
+     */
+    public function hasMany($relatedType, $foreignKey)
+    {
+        $model = new RestModel($this->client, Type::modelify($relatedType));
+        $builder = $model->newBuilder();
+
+        if ($this->isCompoundKey($foreignKey)) {
+            foreach ($this->getCompoundKeyArray($foreignKey) as $attribute => $value) {
+                $builder->filter('@' . $attribute, $value);
+            }
+        } else {
+            $builder->filter('@' . $foreignKey, $this->key());
+        }
+
+        return $builder;
+    }
+
+    /**
+     * Determine if a key is compound.
+     *
+     * @param string $key
+     * @return bool
+     */
+    protected function isCompoundKey($key)
+    {
+        return strpos($key, ':') !== false;
+    }
+
+    /**
+     * Get a compound key from attributes.
+     *
+     * @param string $foreignKey
+     * @return string
+     */
+    protected function getCompoundKey($foreignKey)
+    {
+        $keys = [];
+
+        foreach ($this->splitKey($foreignKey) as $key) {
+            $keys[] = $this->getAttribute($key);
+        }
+
+        return $this->joinKeys($keys);
+    }
+
+    /**
+     * Get a compound key array for a "has many" relationship.
+     *
+     * @param string $foreignKey
+     * @return array
+     */
+    protected function getCompoundKeyArray($foreignKey)
+    {
+        return array_combine(
+            $this->splitKey($foreignKey),
+            $this->splitKey($this->key())
+        );
+    }
+
+    /**
+     * Split a key into its component parts.
+     *
+     * @param string|null $key
+     * @return array
+     */
+    protected function splitKey($key = null)
+    {
+        if (is_null($key)) {
+            $key = $this->key();
+        }
+
+        if (is_null($key)) {
+            return [];
+        }
+
+        return explode(':', $key);
+    }
+
+    /**
+     * Join keys into a compound key.
+     *
+     * @param array $keys
+     * @return string
+     */
+    protected function joinKeys(array $keys)
+    {
+        return implode(':', $keys);
+    }
+
+    /**
+     * Check if a relation has been loaded.
+     *
+     * @param string $relation
+     * @return bool
+     */
+    protected function relationLoaded($relation)
+    {
+        return array_key_exists($relation, $this->relations);
+    }
+
+    /**
+     * Auto-magically fetch relationships from method calls.
+     *
+     * @param string $method
+     * @return mixed
+     */
+    protected function getRelatedFromMethod($method)
+    {
+        // If the called method name exists as an attribute on the model,
+        // assume it is the camel-cased related type and the attribute
+        // contains the foreign key for a "belongs to" relationship.
+        if ($this->hasAttribute($method)) {
+            if (!$this->relationLoaded($method)) {
+                $relatedType = Type::modelify($method);
+                $this->relations[$method] = $this->belongsTo($relatedType, $method);
+            }
+
+            return $this->relations[$method];
+        }
+
+        // Otherwise, the called method name should be a pluralized,
+        // camel-cased related type for a "has many" relationship.
+        $relatedType = Type::modelify(Type::singularize($method));
+        $foreignKey = Type::camelize($this->type);
+        return $this->hasMany($relatedType, $foreignKey);
+    }
+
+    /**
      * Get a relationship.
      *
      * @param string $name
@@ -325,7 +517,8 @@ class RestModel implements ArrayAccess, JsonSerializable
             };
         }
 
-        throw new \BadMethodCallException("Method [$method] does not exist on " . static::class);
+        // Handle relationship method calls
+        return $this->getRelatedFromMethod($method);
     }
 
     /**

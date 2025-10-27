@@ -126,3 +126,27 @@ it('throws exception for unknown service', function () {
     expect(fn() => $this->client->service('UnknownService'))
         ->toThrow(InvalidArgumentException::class, 'Service [$service] is not implemented');
 });
+
+it('can query JobPart with date and jobtype filter', function () {
+    // This demonstrates the XPATH equivalent of:
+    // SELECT * FROM jobpart WHERE ccdatesetup >= '2024-01-01' AND jobtype = 9
+    
+    $jobParts = $this->client->jobPart
+        ->filter('@ccdatesetup', '>=', \Carbon\Carbon::parse('2024-01-01'))
+        ->filter('@jobtype', 9)
+        ->get();
+    
+    expect($jobParts)->toBeInstanceOf(\Pace\RestKeyCollection::class);
+    
+    // Example of accessing the results
+    foreach ($jobParts as $jp) {
+        // Direct JobPart fields
+        expect($jp->ccdatesetup)->not->toBeNull();
+        expect($jp->jobtype)->toBe(9);
+        
+        // Related fields would be accessed via relationships
+        // $job = $jp->job();
+        // $jobvalue = $job->jobvalue;
+        // etc.
+    }
+});
