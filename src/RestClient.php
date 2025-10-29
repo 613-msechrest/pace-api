@@ -343,7 +343,7 @@ class RestClient
      * @param string $type
      * @return \Pace\RestModel
      */
-    protected function model($type)
+    public function model($type)
     {
         return new \Pace\RestModel($this, $type);
     }

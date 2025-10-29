@@ -13,7 +13,7 @@ trait Attachments
      * @param string $content
      * @param string|null $field
      * @param int|string|null $keyName
-     * @return \Pace\Model
+     * @return \Pace\RestModel|\Pace\Model
      */
     public function attachFile($name, $content, $field = null, $keyName = null)
     {
