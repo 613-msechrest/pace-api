@@ -224,30 +224,60 @@ class RestModel implements ArrayAccess, JsonSerializable
     }
 
     /**
+     * Fields that should be excluded from updates (readonly/computed fields).
+     *
+     * @var array
+     */
+    protected static $readonlyFields = [
+        'basis', // Basis weight is computed from paper weight when setBasisWeightFromPaperWeight is true
+    ];
+
+    /**
      * Get the attributes that have been changed since the model was last synced.
      *
      * @return array
      */
+
     public function getDirty()
     {
         $dirty = [];
 
         foreach ($this->attributes as $key => $value) {
-            $originalValue = $this->original[$key] ?? null;
+            // Skip readonly/computed fields
+            if (in_array($key, static::$readonlyFields, true)) {
+                continue;
+            }
+
+            // Skip if key doesn't exist in original (computed/server-side field)
+            if (!array_key_exists($key, $this->original)) {
+                continue;
+            }
+
+            $originalValue = $this->original[$key];
 
             // Handle array comparison
             if (is_array($value) || is_array($originalValue)) {
                 if ($value != $originalValue) {
                     $dirty[$key] = $value;
                 }
-            } elseif ($value !== $originalValue) {
-                // Simple value comparison
-                $dirty[$key] = $value;
+            } else {
+                // Check if values are actually different
+                // Handle null/0 equivalence: if one is null and other is 0.0/0, treat as same
+                if (($value === null && ($originalValue === 0.0 || $originalValue === 0)) ||
+                    (($value === 0.0 || $value === 0) && $originalValue === null)) {
+                    // Consider them equivalent, don't mark as dirty
+                    continue;
+                }
+                
+                if ($value !== $originalValue) {
+                    $dirty[$key] = $value;
+                }
             }
         }
 
         return $dirty;
     }
+
 
     /**
      * Determine if the model has been modified since it was last synced.
