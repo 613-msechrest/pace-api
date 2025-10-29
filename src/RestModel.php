@@ -49,6 +49,13 @@ class RestModel implements ArrayAccess, JsonSerializable
     protected $relations = [];
 
     /**
+     * Indicates if this model exists in Pace.
+     *
+     * @var bool
+     */
+    public $exists = false;
+
+    /**
      * Create a new model instance.
      *
      * @param RestClient $client
@@ -184,10 +191,13 @@ class RestModel implements ArrayAccess, JsonSerializable
      */
     public function save()
     {
-        if ($this->key()) {
+        if ($this->exists) {
+            // Update an existing object
             $this->attributes = $this->client->updateObject($this->type, $this->attributes);
         } else {
+            // Create a new object
             $this->attributes = $this->client->createObject($this->type, $this->attributes);
+            $this->exists = true;
         }
 
         $this->original = $this->attributes;
@@ -244,6 +254,7 @@ class RestModel implements ArrayAccess, JsonSerializable
         }
 
         $model = new static($this->client, $this->type, $attributes);
+        $model->exists = true;
         return $model;
     }
 
