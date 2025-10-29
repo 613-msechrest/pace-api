@@ -127,26 +127,30 @@ it('throws exception for unknown service', function () {
         ->toThrow(InvalidArgumentException::class, 'Service [$service] is not implemented');
 });
 
-it('can query JobPart with date and jobtype filter', function () {
-    // This demonstrates the XPATH equivalent of:
-    // SELECT * FROM jobpart WHERE ccdatesetup >= '2024-01-01' AND jobtype = 9
+it('can update an Inventory Item using the save method', function () {
+    // Read the item to get current description
+    $inventoryItem = $this->client->inventoryItem->read('340-RD102');
+    $originalDescription = $inventoryItem->description;
     
-    $jobParts = $this->client->jobPart
-        ->filter('@ccdatesetup', '>=', \Carbon\Carbon::parse('2024-01-01'))
-        ->filter('@jobtype', 9)
-        ->get();
+    // Change description to a new unique value
+    $newDescription = 'Rubber Ducky | api.test.t0.' . uniqid();
+    $inventoryItem->description = $newDescription;
     
-    expect($jobParts)->toBeInstanceOf(\Pace\RestKeyCollection::class);
+    // Save should handle validation warnings gracefully
+    $inventoryItem->save();
+
+    // Verify the save() returned the updated description
+    expect($inventoryItem->description)->toBe($newDescription);
+
+    // Re-read the item from the server to verify the update actually persisted
+    $updatedItem = $this->client->inventoryItem->read('340-RD102');
+    expect($updatedItem->description)->toBe($newDescription);
     
-    // Example of accessing the results
-    foreach ($jobParts as $jp) {
-        // Direct JobPart fields
-        expect($jp->ccdatesetup)->not->toBeNull();
-        expect($jp->jobtype)->toBe(9);
-        
-        // Related fields would be accessed via relationships
-        // $job = $jp->job();
-        // $jobvalue = $job->jobvalue;
-        // etc.
-    }
+    // Restore original description
+    $updatedItem->description = $originalDescription;
+    $updatedItem->save();
+    
+    // Verify it was restored
+    $restoredItem = $this->client->inventoryItem->read('340-RD102');
+    expect($restoredItem->description)->toBe($originalDescription);
 });

@@ -208,8 +208,32 @@ class RestModel implements ArrayAccess, JsonSerializable
             
             // Convert RestModel objects to their key values
             $attributes = $this->prepareAttributesForSave($dirty);
-            
-            $this->attributes = $this->client->updateObject($this->type, $attributes);
+
+            // Log the payload being sent for debugging
+            // Use dump() if available (for Pest tests), otherwise error_log
+            if (function_exists('dump')) {
+                dump('[PaceAPI] UpdateObject payload for ' . $this->type . ':', $attributes);
+            } else {
+                error_log('[PaceAPI] UpdateObject payload ' . $this->type . ': ' . json_encode($attributes));
+            }
+
+            try {
+                $this->attributes = $this->client->updateObject($this->type, $attributes);
+            } catch (\Exception $e) {
+                // Handle server-side validation warnings that don't actually prevent updates
+                // Some Pace updates return 500 errors for validation warnings, but the update still succeeds
+                if ($this->isNonBlockingValidationError($e)) {
+                    // Verify the update actually succeeded by re-reading the object
+                    if ($this->verifyUpdateSucceeded($attributes)) {
+                        // Update succeeded despite the error - refresh attributes and continue
+                        $this->attributes = $this->client->readObject($this->type, $this->key());
+                        return true;
+                    }
+                }
+                
+                // If it's a real error or update didn't succeed, throw the exception
+                throw $e;
+            }
         } else {
             // Create a new object - send all attributes
             $attributes = $this->prepareAttributesForSave($this->attributes);
@@ -224,31 +248,17 @@ class RestModel implements ArrayAccess, JsonSerializable
     }
 
     /**
-     * Fields that should be excluded from updates (readonly/computed fields).
-     *
-     * @var array
-     */
-    protected static $readonlyFields = [
-        'basis', // Basis weight is computed from paper weight when setBasisWeightFromPaperWeight is true
-    ];
-
-    /**
      * Get the attributes that have been changed since the model was last synced.
      *
      * @return array
      */
-
     public function getDirty()
     {
         $dirty = [];
 
         foreach ($this->attributes as $key => $value) {
-            // Skip readonly/computed fields
-            if (in_array($key, static::$readonlyFields, true)) {
-                continue;
-            }
-
-            // Skip if key doesn't exist in original (computed/server-side field)
+            // Skip if key doesn't exist in original (computed/server-side fields from API response)
+            // These shouldn't be sent on updates
             if (!array_key_exists($key, $this->original)) {
                 continue;
             }
@@ -269,6 +279,7 @@ class RestModel implements ArrayAccess, JsonSerializable
                     continue;
                 }
                 
+                // Compare values strictly - if different, mark as dirty
                 if ($value !== $originalValue) {
                     $dirty[$key] = $value;
                 }
@@ -287,6 +298,82 @@ class RestModel implements ArrayAccess, JsonSerializable
     public function isDirty()
     {
         return $this->original !== $this->attributes;
+    }
+
+    /**
+     * Check if an exception is a non-blocking validation error.
+     *
+     * These are server errors (500) that contain validation warnings but don't
+     * actually prevent the update from succeeding.
+     *
+     * @param \Exception $e
+     * @return bool
+     */
+    protected function isNonBlockingValidationError(\Exception $e)
+    {
+        // Check if it's a 500 server error
+        if ($e->getCode() !== 500) {
+            return false;
+        }
+
+        $message = $e->getMessage();
+
+        // Common validation warnings that don't block updates:
+        // - "Editing basis weight is not permitted..." - basis field validation
+        // - Other validation warnings that Pace returns as 500 but don't prevent updates
+        $nonBlockingPatterns = [
+            '/Editing basis weight is not permitted/',
+            '/is not permitted when.*is true/',
+        ];
+
+        foreach ($nonBlockingPatterns as $pattern) {
+            if (preg_match($pattern, $message)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Verify that an update actually succeeded by re-reading the object.
+     *
+     * @param array $sentAttributes The attributes we attempted to update
+     * @return bool
+     */
+    protected function verifyUpdateSucceeded(array $sentAttributes)
+    {
+        try {
+            $updated = $this->client->readObject($this->type, $this->key());
+            
+            if (is_null($updated)) {
+                return false;
+            }
+
+            // Check if our changes are present in the updated object
+            // We exclude the primary key from comparison since we always send it
+            $keyName = $this->guessPrimaryKeyName();
+            $changedAttributes = $sentAttributes;
+            if ($keyName && isset($changedAttributes[$keyName])) {
+                unset($changedAttributes[$keyName]);
+            }
+
+            foreach ($changedAttributes as $key => $value) {
+                // If we tried to update a field, check if it matches (allowing for type coercion)
+                if (isset($updated[$key])) {
+                    $updatedValue = $updated[$key];
+                    // Loose comparison to handle type differences (string vs int, etc.)
+                    if ($updatedValue != $value) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        } catch (\Exception $e) {
+            // If we can't re-read, assume it didn't succeed
+            return false;
+        }
     }
 
     /**
