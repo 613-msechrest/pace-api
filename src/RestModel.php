@@ -191,14 +191,29 @@ class RestModel implements ArrayAccess, JsonSerializable
      */
     public function save()
     {
-        // Convert RestModel objects to their key values before saving
-        $attributes = $this->prepareAttributesForSave($this->attributes);
-
         if ($this->exists) {
-            // Update an existing object
+            // Update an existing object - only send changed attributes
+            $dirty = $this->getDirty();
+            
+            if (empty($dirty)) {
+                // No changes to save
+                return true;
+            }
+            
+            // Ensure primary key is included (needed to identify the object)
+            $keyName = $this->guessPrimaryKeyName();
+            if ($keyName && !isset($dirty[$keyName])) {
+                $dirty[$keyName] = $this->getAttribute($keyName);
+            }
+            
+            // Convert RestModel objects to their key values
+            $attributes = $this->prepareAttributesForSave($dirty);
+            
             $this->attributes = $this->client->updateObject($this->type, $attributes);
         } else {
-            // Create a new object
+            // Create a new object - send all attributes
+            $attributes = $this->prepareAttributesForSave($this->attributes);
+            
             $this->attributes = $this->client->createObject($this->type, $attributes);
             $this->exists = true;
         }
@@ -206,6 +221,26 @@ class RestModel implements ArrayAccess, JsonSerializable
         $this->original = $this->attributes;
 
         return true;
+    }
+
+    /**
+     * Get the attributes that have been changed since the model was last synced.
+     *
+     * @return array
+     */
+    public function getDirty()
+    {
+        return array_diff_assoc($this->attributes, $this->original);
+    }
+
+    /**
+     * Determine if the model has been modified since it was last synced.
+     *
+     * @return bool
+     */
+    public function isDirty()
+    {
+        return $this->original !== $this->attributes;
     }
 
     /**
