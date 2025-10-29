@@ -191,18 +191,46 @@ class RestModel implements ArrayAccess, JsonSerializable
      */
     public function save()
     {
+        // Convert RestModel objects to their key values before saving
+        $attributes = $this->prepareAttributesForSave($this->attributes);
+
         if ($this->exists) {
             // Update an existing object
-            $this->attributes = $this->client->updateObject($this->type, $this->attributes);
+            $this->attributes = $this->client->updateObject($this->type, $attributes);
         } else {
             // Create a new object
-            $this->attributes = $this->client->createObject($this->type, $this->attributes);
+            $this->attributes = $this->client->createObject($this->type, $attributes);
             $this->exists = true;
         }
 
         $this->original = $this->attributes;
 
         return true;
+    }
+
+    /**
+     * Prepare attributes for saving by converting RestModel objects to their keys.
+     *
+     * @param array $attributes
+     * @return array
+     */
+    protected function prepareAttributesForSave(array $attributes)
+    {
+        $prepared = [];
+
+        foreach ($attributes as $key => $value) {
+            if ($value instanceof static) {
+                // Extract the key from the RestModel object
+                $prepared[$key] = $value->key();
+            } elseif (is_array($value)) {
+                // Recursively process arrays
+                $prepared[$key] = $this->prepareAttributesForSave($value);
+            } else {
+                $prepared[$key] = $value;
+            }
+        }
+
+        return $prepared;
     }
 
     /**
