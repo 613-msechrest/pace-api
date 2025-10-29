@@ -230,7 +230,23 @@ class RestModel implements ArrayAccess, JsonSerializable
      */
     public function getDirty()
     {
-        return array_diff_assoc($this->attributes, $this->original);
+        $dirty = [];
+
+        foreach ($this->attributes as $key => $value) {
+            $originalValue = $this->original[$key] ?? null;
+
+            // Handle array comparison
+            if (is_array($value) || is_array($originalValue)) {
+                if ($value != $originalValue) {
+                    $dirty[$key] = $value;
+                }
+            } elseif ($value !== $originalValue) {
+                // Simple value comparison
+                $dirty[$key] = $value;
+            }
+        }
+
+        return $dirty;
     }
 
     /**
