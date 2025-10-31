@@ -202,8 +202,37 @@ class RestModel implements ArrayAccess, JsonSerializable
             
             // Ensure primary key is included (needed to identify the object)
             $keyName = $this->guessPrimaryKeyName();
-            if ($keyName && !isset($dirty[$keyName])) {
-                $dirty[$keyName] = $this->getAttribute($keyName);
+            $keyValue = $this->getAttribute($keyName);
+            
+            // For compound keys, ensure individual key fields are present instead of primaryKey
+            if ($keyName && $keyValue) {
+                if ($this->isCompoundKey($keyValue)) {
+                    // For compound keys like JobPart (job:jobPart), use individual fields
+                    // Check if this type has the key fields as separate attributes
+                    $keyParts = $this->splitKey($keyValue);
+                    
+                    // Special handling for known compound key types
+                    if ($this->type === 'JobPart' && count($keyParts) === 2) {
+                        // JobPart uses 'job' and 'jobPart' fields - always include them for compound keys
+                        if (!isset($dirty['job'])) {
+                            $dirty['job'] = $this->hasAttribute('job') ? $this->getAttribute('job') : $keyParts[0];
+                        }
+                        if (!isset($dirty['jobPart'])) {
+                            $dirty['jobPart'] = $this->hasAttribute('jobPart') ? $this->getAttribute('jobPart') : $keyParts[1];
+                        }
+                    } else {
+                        // For other compound keys, try to extract field names from keyName if it's compound
+                        // Otherwise fall back to primaryKey
+                        if (!isset($dirty[$keyName])) {
+                            $dirty[$keyName] = $keyValue;
+                        }
+                    }
+                } else {
+                    // Simple key - just ensure it's present
+                    if (!isset($dirty[$keyName])) {
+                        $dirty[$keyName] = $keyValue;
+                    }
+                }
             }
             
             // Convert RestModel objects to their key values

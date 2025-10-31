@@ -154,3 +154,23 @@ it('can update an Inventory Item using the save method', function () {
     $restoredItem = $this->client->inventoryItem->read('340-RD102');
     expect($restoredItem->description)->toBe($originalDescription);
 });
+
+it('can update a JobPart using the save method', function () {
+    // Read the job part to get current description
+    $jobPart = $this->client->jobPart->read('S591412:01');
+
+    $jobPart->description = '18000 Indigo Blue XL SS - Full Front';
+
+    $jobPart->save();
+
+    dd($jobPart);
+
+    $originalDescription = $jobPart->description;
+    
+    // Change description to a new unique value
+    $newDescription = 'Job Part | api.test.t0.' . uniqid();
+    $jobPart->description = $newDescription;
+    
+    // Save should handle validation warnings gracefully
+    $jobPart->save();
+});
