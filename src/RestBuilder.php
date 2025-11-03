@@ -398,7 +398,21 @@ class RestBuilder
                 return $value ? '\'true\'' : '\'false\'';
 
             default:
-                return "\"$value\"";
+                // Choose quote style based on content to avoid escaping
+                if (strpos($value, '"') !== false && strpos($value, "'") === false) {
+                    // Contains double quotes but no single quotes - use single quotes
+                    return "'$value'";
+                } elseif (strpos($value, "'") !== false && strpos($value, '"') === false) {
+                    // Contains single quotes but no double quotes - use double quotes (no escaping needed)
+                    return "\"$value\"";
+                } elseif (strpos($value, '"') !== false && strpos($value, "'") !== false) {
+                    // Contains both - use single quotes and escape single quotes by doubling
+                    $escaped = str_replace("'", "''", $value);
+                    return "'$escaped'";
+                } else {
+                    // No quotes - use double quotes (standard)
+                    return "\"$value\"";
+                }
         }
     }
 
