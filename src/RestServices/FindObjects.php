@@ -25,8 +25,10 @@ class FindObjects extends RestService
             $params['txnId'] = $txnId;
         }
 
-        // Debug: log the parameters
-        error_log("FindObjects params: " . json_encode($params));
+        // Debug: log the parameters (only if PACE_API_DEBUG is enabled)
+        if ($this->shouldLogDebug()) {
+            error_log("FindObjects params: " . json_encode($params));
+        }
 
         $response = $this->http->get('FindObjects/find', $params);
 

@@ -155,9 +155,14 @@ it('can update an Inventory Item using the save method', function () {
     expect($restoredItem->description)->toBe($originalDescription);
 });
 
-it('can update a JobPart using the save method', function () {
+it('can retrieve a Quote Item Type by name with quotes', function () {
+    $quoteItemTypeName = '12" x 12" - Single Image';
+    $quoteItemType = $this->client->quoteItemType->filter('@name', $quoteItemTypeName)->first();
+
+    dd('QuoteItemType Name: [' . $quoteItemType->name . ']', 'Length: ' . strlen($quoteItemType->name), 'Hex: ' . bin2hex($quoteItemType->name));
+
     // Read the job part to get current description
-    $jobPart = $this->client->jobPart->read('S591412:01');
+    $jobPart = $this->client->quoteItemType->filter('@name', '12" x 12" - Single Image')->first();
 
     $jobPart->description = '18000 Indigo Blue XL SS - Full Front';
 

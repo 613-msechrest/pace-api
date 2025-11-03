@@ -238,12 +238,14 @@ class RestModel implements ArrayAccess, JsonSerializable
             // Convert RestModel objects to their key values
             $attributes = $this->prepareAttributesForSave($dirty);
 
-            // Log the payload being sent for debugging
-            // Use dump() if available (for Pest tests), otherwise error_log
-            if (function_exists('dump')) {
-                dump('[PaceAPI] UpdateObject payload for ' . $this->type . ':', $attributes);
-            } else {
-                error_log('[PaceAPI] UpdateObject payload ' . $this->type . ': ' . json_encode($attributes));
+            // Log the payload being sent for debugging (only if PACE_API_DEBUG is enabled)
+            if ($this->shouldLogDebug()) {
+                // Use dump() if available (for Pest tests), otherwise error_log
+                if (function_exists('dump')) {
+                    dump('[PaceAPI] UpdateObject payload for ' . $this->type . ':', $attributes);
+                } else {
+                    error_log('[PaceAPI] UpdateObject payload ' . $this->type . ': ' . json_encode($attributes));
+                }
             }
 
             try {
@@ -796,6 +798,27 @@ class RestModel implements ArrayAccess, JsonSerializable
     public function __unset($key)
     {
         unset($this->attributes[$key]);
+    }
+
+    /**
+     * Determine if debug logging should be enabled.
+     *
+     * @return bool
+     */
+    protected function shouldLogDebug()
+    {
+        // Check environment variable - works in Laravel and plain PHP
+        $debug = getenv('PACE_API_DEBUG');
+        if ($debug !== false) {
+            return filter_var($debug, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        // Fallback to Laravel's env() helper if available
+        if (function_exists('env')) {
+            return filter_var(env('PACE_API_DEBUG', false), FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return false;
     }
 
     /**
