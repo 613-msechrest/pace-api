@@ -54,9 +54,9 @@ class RestBuilder
     /**
      * Create a new instance.
      *
-     * @param RestModel $model
+     * @param RestModel|null $model
      */
-    public function __construct(RestModel $model = null)
+    public function __construct(?RestModel $model = null)
     {
         $this->model = $model;
     }
@@ -149,10 +149,17 @@ class RestBuilder
         
         $client = $this->model->getClient();
         
-        $results = $client->findObjects($this->model->type(), $xpath);
-
-        if ($this->limit !== null && count($results) > $this->limit) {
-            $results = array_slice($results, 0, $this->limit);
+        // Use findAndSort if sorts are specified, otherwise use regular find
+        if (count($this->sorts) > 0) {
+            // Pass limit to findAndSort so it can be handled by the API
+            $results = $client->findAndSortObjects($this->model->type(), $xpath, $this->sorts, $this->limit);
+        } else {
+            $results = $client->findObjects($this->model->type(), $xpath);
+            
+            // Apply limit client-side if no sorts (API doesn't support limit without sort)
+            if ($this->limit !== null && count($results) > $this->limit) {
+                $results = array_slice($results, 0, $this->limit);
+            }
         }
 
         return new RestKeyCollection($this->model, $results);

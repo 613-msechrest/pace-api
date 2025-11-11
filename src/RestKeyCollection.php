@@ -218,4 +218,62 @@ class RestKeyCollection implements ArrayAccess, Countable, Iterator
     {
         return $this->keys;
     }
+
+    /**
+     * Sort the collection by a property.
+     *
+     * @param string $property The property name to sort by (e.g., 'name')
+     * @param bool $descending Whether to sort in descending order (default: false)
+     * @return self
+     */
+    public function sortBy($property, $descending = false)
+    {
+        // Load all models with their keys
+        $items = [];
+        foreach ($this->keys as $key) {
+            $model = $this->model->read($key);
+            if ($model) {
+                $items[] = [
+                    'key' => $key,
+                    'value' => $model->$property ?? null
+                ];
+            } else {
+                // Handle null models
+                $items[] = [
+                    'key' => $key,
+                    'value' => null
+                ];
+            }
+        }
+
+        // Sort by the property value
+        usort($items, function ($a, $b) use ($descending) {
+            $aVal = $a['value'];
+            $bVal = $b['value'];
+
+            // Handle null values (put them at the end)
+            if ($aVal === null && $bVal === null) {
+                return 0;
+            }
+            if ($aVal === null) {
+                return 1;
+            }
+            if ($bVal === null) {
+                return -1;
+            }
+
+            // Compare values
+            $result = $aVal <=> $bVal;
+            
+            return $descending ? -$result : $result;
+        });
+
+        // Reorder keys based on sorted items
+        $this->keys = array_column($items, 'key');
+        
+        // Reset position for iterator
+        $this->rewind();
+
+        return $this;
+    }
 }

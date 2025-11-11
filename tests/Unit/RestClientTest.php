@@ -155,6 +155,42 @@ it('can update an Inventory Item using the save method', function () {
     expect($restoredItem->description)->toBe($originalDescription);
 });
 
+it('can sort a keyCollection by property', function () {
+    // Sort ascending (default) - can also use ->sort('@name', false)
+    $quoteItemTypes = $this->client->quoteItemType
+        ->filter('category/@department', 5006)
+        ->sort('@name')  // ascending (default)
+        ->limit(10)
+        ->get();
+    
+    expect($quoteItemTypes)->toBeInstanceOf(Pace\RestKeyCollection::class);
+    expect($quoteItemTypes->count())->toBeGreaterThan(0);
+    
+    // Verify sorting worked - first item should be alphabetically before or equal to last
+    $first = $quoteItemTypes->first();
+    $last = $quoteItemTypes->last();
+    
+    if ($first && $last) {
+        expect($first->name <= $last->name)->toBeTrue();
+    }
+    
+    // Test descending sort - use ->sort('@name', true) for descending
+    $quoteItemTypesDesc = $this->client->quoteItemType
+        ->filter('category/@department', 5006)
+        ->sort('@name', true)  // descending
+        ->limit(10)
+        ->get();
+    
+    if ($quoteItemTypesDesc->count() > 0) {
+        $firstDesc = $quoteItemTypesDesc->first();
+        $lastDesc = $quoteItemTypesDesc->last();
+        
+        if ($firstDesc && $lastDesc) {
+            expect($firstDesc->name >= $lastDesc->name)->toBeTrue();
+        }
+    }
+});
+
 it('can retrieve a Quote Item Type by name with quotes', function () {
     $quoteItemTypeName = '12" x 12" - Single Image';
     $quoteItemType = $this->client->quoteItemType->filter('@name', $quoteItemTypeName)->first();

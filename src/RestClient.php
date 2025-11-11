@@ -195,6 +195,21 @@ class RestClient
     }
 
     /**
+     * Find and sort objects matching the specified criteria.
+     *
+     * @param string $object
+     * @param string $filter
+     * @param array $sort
+     * @param int|null $limit
+     * @param int|null $offset
+     * @return array
+     */
+    public function findAndSortObjects($object, $filter, array $sort, $limit = null, $offset = null)
+    {
+        return $this->service('FindObjects')->findAndSort($object, $filter, $sort, $limit, $offset);
+    }
+
+    /**
      * Invoke an action.
      *
      * @param string $action
