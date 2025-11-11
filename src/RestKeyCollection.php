@@ -224,9 +224,10 @@ class RestKeyCollection implements ArrayAccess, Countable, Iterator
      *
      * @param string $property The property name to sort by (e.g., 'name')
      * @param bool $descending Whether to sort in descending order (default: false)
+     * @param bool $natural Whether to use natural sorting (handles numbers in strings) (default: true)
      * @return self
      */
-    public function sortBy($property, $descending = false)
+    public function sortBy($property, $descending = false, $natural = true)
     {
         // Load all models with their keys
         $items = [];
@@ -247,7 +248,7 @@ class RestKeyCollection implements ArrayAccess, Countable, Iterator
         }
 
         // Sort by the property value
-        usort($items, function ($a, $b) use ($descending) {
+        usort($items, function ($a, $b) use ($descending, $natural) {
             $aVal = $a['value'];
             $bVal = $b['value'];
 
@@ -262,8 +263,12 @@ class RestKeyCollection implements ArrayAccess, Countable, Iterator
                 return -1;
             }
 
-            // Compare values
-            $result = $aVal <=> $bVal;
+            // Compare values - use natural sorting for strings by default
+            if ($natural && is_string($aVal) && is_string($bVal)) {
+                $result = strnatcasecmp($aVal, $bVal);
+            } else {
+                $result = $aVal <=> $bVal;
+            }
             
             return $descending ? -$result : $result;
         });

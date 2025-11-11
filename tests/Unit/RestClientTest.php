@@ -215,3 +215,21 @@ it('can retrieve a Quote Item Type by name with quotes', function () {
     // Save should handle validation warnings gracefully
     $jobPart->save();
 });
+
+it('shows me the sheet size quote item types', function () {
+    // Get all sheet sizes (limit 0 means no limit)
+    $sheetSizes = $this->client->quoteItemType
+        ->filter('@category', 5046)
+        ->get();
+    
+    // Use sortBy() for natural sorting (handles numbers in strings correctly)
+    // This will sort "2 Item" before "10 Item" instead of alphabetically
+    $sheetSizes->sortBy('name', true); // descending with natural sort
+    
+    $sheetSizeNames = [];
+    foreach ($sheetSizes as $sheetSize) {
+        $sheetSizeNames[] = $sheetSize->name;
+    }
+
+    dd($sheetSizeNames);
+});
