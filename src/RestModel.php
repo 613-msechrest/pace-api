@@ -227,6 +227,10 @@ class RestModel implements ArrayAccess, JsonSerializable
             // Convert RestModel objects to their key values
             $attributes = $this->prepareAttributesForSave($dirty);
 
+            if (getenv('PACE_API_DEBUG')) {
+                fwrite(STDERR, "[PaceAPI] Saving {$this->type}. Key: {$keyName}=" . json_encode($keyValue) . ". Payload: " . json_encode($attributes) . "\n");
+            }
+
             try {
                 $this->attributes = $this->client->updateObject($this->type, $attributes);
             } catch (\Exception $e) {

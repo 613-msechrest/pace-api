@@ -143,9 +143,17 @@ class HttpClient
             // Apply middleware to modify request options
             $options = $this->applyMiddleware($options);
 
+            if (getenv('PACE_API_DEBUG')) {
+                fwrite(STDERR, "[PaceAPI] Request: {$method} {$endpoint} " . json_encode($options) . "\n");
+            }
+
             $response = $this->client->request($method, $endpoint, $options);
 
             $body = $response->getBody()->getContents();
+            
+            if (getenv('PACE_API_DEBUG')) {
+                fwrite(STDERR, "[PaceAPI] Response: " . substr($body, 0, 1000) . (strlen($body) > 1000 ? '...' : '') . "\n");
+            }
             
             // Try to decode as JSON, fall back to raw string
             

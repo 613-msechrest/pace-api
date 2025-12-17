@@ -22,6 +22,10 @@ class AttachmentService extends RestService
      */
     public function add($object, $key, $field, $name, $content, $attachmentCategory = null, $note = null, $txnId = null)
     {
+        if (empty($key)) {
+            throw new \InvalidArgumentException("Object key (pKey) is required for attachments.");
+        }
+
         $attachment = [
             'name' => $name,
             'content' => base64_encode($content),

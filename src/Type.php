@@ -60,7 +60,6 @@ class Type
      */
     protected static $irregularKeys = [
         'FileAttachment' => 'attachment',
-        'InventoryItem' => 'inventoryItem',
     ];
 
     /**
