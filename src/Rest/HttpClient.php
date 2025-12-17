@@ -148,6 +148,8 @@ class HttpClient
             $body = $response->getBody()->getContents();
             
             // Try to decode as JSON, fall back to raw string
+            
+            // Try to decode as JSON, fall back to raw string
             $decoded = json_decode($body, true);
             if (json_last_error() === JSON_ERROR_NONE) {
                 return $decoded;

@@ -12,10 +12,12 @@ trait Attachments
      * @param string $name
      * @param string $content
      * @param string|null $field
+     * @param string|null $category
+     * @param string|null $note
      * @param int|string|null $keyName
      * @return \Pace\RestModel|\Pace\Model
      */
-    public function attachFile($name, $content, $field = null, $keyName = null)
+    public function attachFile($name, $content, $field = null, $category = null, $note = null, $keyName = null)
     {
         // For InventoryItem objects, temporarily remove the 'basis' field if it exists
         // This prevents validation errors when Pace internally tries to update the item
@@ -34,7 +36,11 @@ trait Attachments
         }
 
         try {
-            $key = $this->client->attachment()->add($this->type, $this->key($keyName), $field, $name, $content);
+            $key = $this->client->attachment()->add($this->type, $this->key($keyName), $field, $name, $content, $category, $note);
+            
+            if (!$key) {
+                throw new \Exception("Failed to obtain an attachment key from Pace API.");
+            }
             
             // Restore basis field if we removed it
             if ($hadBasis) {
@@ -110,7 +116,15 @@ trait Attachments
             throw $e;
         }
 
-        return $this->client->model('FileAttachment')->read($key);
+        $fileAttachment = $this->client->model('FileAttachment')->read($key);
+
+        // Ensure the attachment key is definitely set on the model
+        if ($fileAttachment && !$fileAttachment->hasAttribute('attachment')) {
+            $fileAttachment->setAttribute('attachment', $key);
+            $fileAttachment->original['attachment'] = $key;
+        }
+
+        return $fileAttachment;
     }
 
     /**
@@ -160,6 +174,7 @@ trait Attachments
         $nonBlockingPatterns = [
             '/Editing basis weight is not permitted/',
             '/is not permitted when.*is true/',
+            '/Unable to locate object: FileAttachment \(null\)/',
         ];
 
         foreach ($nonBlockingPatterns as $pattern) {

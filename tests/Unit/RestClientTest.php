@@ -193,18 +193,26 @@ it('can sort a keyCollection by property', function () {
 
 it('can retrieve a Quote Item Type by name with quotes', function () {
     $quoteItemTypeName = '12" x 12" - Single Image';
-    $quoteItemType = $this->client->quoteItemType->filter('@name', $quoteItemTypeName)->first();
 
-    dd('QuoteItemType Name: [' . $quoteItemType->name . ']', 'Length: ' . strlen($quoteItemType->name), 'Hex: ' . bin2hex($quoteItemType->name));
+    $job = $this->client->job->read('S606972');
 
-    // Read the job part to get current description
-    $jobPart = $this->client->quoteItemType->filter('@name', '12" x 12" - Single Image')->first();
+    $discount = [
+        'description' => 'Testing discount capabilities on a Job level',
+        'discountAmount' => 1.99,
+        'externalId' => 'CouponCode199',
+        'job' => $job->job,
+        'invoiceExtraType' => 4 // 4 = Discount
+    ];
 
-    $jobPart->description = '18000 Indigo Blue XL SS - Full Front';
+    $jobDiscount = $job->jobDiscounts()->first() ?? $this->client->jobDiscount;
+    $jobDiscount->description = 'Testing discount capabilities on a Job level';
+    $jobDiscount->discountAmount = 1.99;
+    $jobDiscount->externalId = 'CouponCode199';
+    $jobDiscount->job = $job->job;
+    $jobDiscount->invoiceExtraType = 4;
+    $jobDiscount->save();
 
-    $jobPart->save();
-
-    dd($jobPart);
+    dd($job->jobDiscounts()->first());
 
     $originalDescription = $jobPart->description;
     
@@ -232,4 +240,34 @@ it('shows me the sheet size quote item types', function () {
     }
 
     dd($sheetSizeNames);
+});
+
+it('can retrieve the ship via list', function () {
+    // 1. Read the InventoryItem (as seen in RestClientTest.php)
+    $inventoryItem = $this->client->inventoryItem->read('SF600-BLACK-S');
+
+    // 2. Define the path to your .tif file
+    $filePath = '/var/www/613originals/apis/pace-api/inventory_6942f1e3975d1.tif';
+
+    // 3. Load the file content
+    // Note: For a 14MB file, this will use ~14MB of RAM. 
+    // The library will then base64-encode it, using another ~19MB.
+    if (file_exists($filePath)) {
+        $content = file_get_contents($filePath);
+        $fileName = basename($filePath);
+
+        // 4. Attach the file
+        // We pass 'thumbnail' as the field attribute (common for InventoryItem)
+        // You can change 'thumbnail' to whatever field your Pace setup expects
+        $attachment = $inventoryItem->attachFile(
+            $fileName, 
+            $content, 
+            'thumbnail',
+            5010
+        );
+
+        echo "Successfully attached: " . $attachment->attachment;
+    } else {
+        echo "File not found at: " . $filePath;
+    }
 });

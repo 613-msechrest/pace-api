@@ -22,8 +22,21 @@ class UpdateObject extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->post("UpdateObject/update{$object}", $attributes, $params);
+        // Extract primary key for query parameters as a fallback
+        $keyName = \Pace\Type::keyName($object) ?: 'primaryKey';
+        $key = $attributes[$keyName] ?? $attributes['primaryKey'] ?? null;
+        if ($key) {
+            $params['primaryKey'] = $key;
+            $params[$keyName] = $key;
+        }
 
-        return $response;
+        // Wrap attributes in object name (e.g. "fileAttachment")
+        // This is required by Pace REST services which are thin wrappers around SOAP.
+        // The SOAP operation expects a single parameter named after the object type.
+        $wrapper = \Pace\Type::camelize($object);
+        $payload = [$wrapper => $attributes];
+
+        return $this->http->post("UpdateObject/update{$object}", $payload, $params);
     }
 }
+

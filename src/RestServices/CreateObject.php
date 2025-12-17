@@ -22,7 +22,13 @@ class CreateObject extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->post("CreateObject/create{$object}", $attributes, $params);
+        // Wrap attributes in object name (e.g. "customer")
+        // This is required by Pace REST services which are thin wrappers around SOAP.
+        // The SOAP operation expects a single parameter named after the object type.
+        $wrapper = \Pace\Type::camelize($object);
+        $payload = [$wrapper => $attributes];
+
+        $response = $this->http->post("CreateObject/create{$object}", $payload, $params);
 
         return $response;
     }

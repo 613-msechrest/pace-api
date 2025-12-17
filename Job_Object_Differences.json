@@ -1,0 +1,344 @@
+{
+  "file1_job": "S606936",
+  "file2_job": "SYST15675",
+  "attributes_differences": {
+    "scheduledShipDateTime": {
+      "S606936": "2025-11-07T08:30:00",
+      "SYST15675": null
+    },
+    "promiseDateTime": {
+      "S606936": "2025-11-07T08:30:00",
+      "SYST15675": null
+    },
+    "lastStatusChangedDateTime": {
+      "S606936": "2025-11-06T07:20:10",
+      "SYST15675": "2025-11-28T03:59:52"
+    },
+    "dateTimeSetup": {
+      "S606936": "2025-11-06T07:20:10",
+      "SYST15675": "2025-11-28T03:59:52"
+    },
+    "reference": {
+      "S606936": null,
+      "SYST15675": "#ST15675"
+    },
+    "lastModified": {
+      "S606936": "2025-11-06T12:20:12",
+      "SYST15675": "2025-11-28T08:59:56"
+    },
+    "description": {
+      "S606936": "DSF Order 573869",
+      "SYST15675": "Shopify Order #ST15675"
+    },
+    "shipVia": {
+      "S606936": 6002,
+      "SYST15675": 1
+    },
+    "customer": {
+      "S606936": "THE89403",
+      "SYST15675": "MEHA0938"
+    },
+    "job": {
+      "S606936": "S606936",
+      "SYST15675": "SYST15675"
+    },
+    "jobContact": {
+      "S606936": 3408949,
+      "SYST15675": 0
+    },
+    "routingIdentifier": {
+      "S606936": "SIXT",
+      "SYST15675": null
+    },
+    "enteredBy": {
+      "S606936": "Administrator",
+      "SYST15675": "API_MS"
+    },
+    "qtyOrdered": {
+      "S606936": 100.0,
+      "SYST15675": 1.0
+    },
+    "contactFirstName": {
+      "S606936": "Jeffrey",
+      "SYST15675": "jennifer"
+    },
+    "contactLastName": {
+      "S606936": "Sidney",
+      "SYST15675": "hopkins"
+    },
+    "altCurrencyRateSourceNote": {
+      "S606936": "2025-11-06 02:20:10",
+      "SYST15675": "2025-11-27 22:59:52"
+    },
+    "quantityOrdered": {
+      "S606936": 100,
+      "SYST15675": 1
+    },
+    "adminStatus": {
+      "S606936": "O",
+      "SYST15675": "J"
+    },
+    "jobType": {
+      "S606936": 5014,
+      "SYST15675": 5020
+    },
+    "dsfOrderID": {
+      "S606936": 573869,
+      "SYST15675": 0
+    },
+    "shipToJobContact": {
+      "S606936": 3408948,
+      "SYST15675": 3409155
+    },
+    "amountToInvoice": {
+      "S606936": 80.0,
+      "SYST15675": 73.92
+    },
+    "jobValue": {
+      "S606936": 80.0,
+      "SYST15675": 132.0
+    },
+    "invoiceW2PHandlingAmount": {
+      "S606936": true,
+      "SYST15675": false
+    },
+    "w2pShippingAmount": {
+      "S606936": 34.74,
+      "SYST15675": 11.5
+    },
+    "destinationBasedTaxing": {
+      "S606936": true,
+      "SYST15675": false
+    },
+    "pnref": {
+      "S606936": "121331539235",
+      "SYST15675": null
+    },
+    "originalQuotedPrice": {
+      "S606936": 80.0,
+      "SYST15675": 73.92
+    },
+    "amountToInvoiceForced": {
+      "S606936": false,
+      "SYST15675": true
+    },
+    "originalQuotedPriceForced": {
+      "S606936": false,
+      "SYST15675": true
+    },
+    "dsfPaymentMethod": {
+      "S606936": "CreditCard",
+      "SYST15675": null
+    },
+    "paymentAuthorizationBillingName": {
+      "S606936": "Jeffrey Sidney",
+      "SYST15675": null
+    },
+    "paymentAuthorizationCardExpiration": {
+      "S606936": "2025-11-06",
+      "SYST15675": null
+    },
+    "paymentAuthorizationCardholderAddress1": {
+      "S606936": "286 Redwall Ct",
+      "SYST15675": null
+    },
+    "paymentAuthorizationCardholderState": {
+      "S606936": "NV",
+      "SYST15675": null
+    },
+    "paymentAuthorizationDate": {
+      "S606936": "2025-11-06",
+      "SYST15675": null
+    },
+    "paymentAuthorizationCardholderCity": {
+      "S606936": "Dayton",
+      "SYST15675": null
+    },
+    "paymentAuthorizationAmount": {
+      "S606936": 114.74,
+      "SYST15675": 0
+    },
+    "paymentAuthorizationTime": {
+      "S606936": "02:00:00",
+      "SYST15675": null
+    },
+    "paymentAuthorizationToken": {
+      "S606936": "XXXX6880",
+      "SYST15675": null
+    },
+    "paymentAuthorizationCardholderZip": {
+      "S606936": "89403-7745",
+      "SYST15675": null
+    }
+  },
+  "original_differences": {
+    "scheduledShipDateTime": {
+      "S606936": "2025-11-07T08:30:00",
+      "SYST15675": null
+    },
+    "promiseDateTime": {
+      "S606936": "2025-11-07T08:30:00",
+      "SYST15675": null
+    },
+    "lastStatusChangedDateTime": {
+      "S606936": "2025-11-06T07:20:10",
+      "SYST15675": "2025-11-28T03:59:52"
+    },
+    "dateTimeSetup": {
+      "S606936": "2025-11-06T07:20:10",
+      "SYST15675": "2025-11-28T03:59:52"
+    },
+    "reference": {
+      "S606936": null,
+      "SYST15675": "#ST15675"
+    },
+    "lastModified": {
+      "S606936": "2025-11-06T12:20:12",
+      "SYST15675": "2025-11-28T08:59:56"
+    },
+    "description": {
+      "S606936": "DSF Order 573869",
+      "SYST15675": "Shopify Order #ST15675"
+    },
+    "shipVia": {
+      "S606936": 6002,
+      "SYST15675": 1
+    },
+    "customer": {
+      "S606936": "THE89403",
+      "SYST15675": "MEHA0938"
+    },
+    "job": {
+      "S606936": "S606936",
+      "SYST15675": "SYST15675"
+    },
+    "jobContact": {
+      "S606936": 3408949,
+      "SYST15675": 0
+    },
+    "routingIdentifier": {
+      "S606936": "SIXT",
+      "SYST15675": null
+    },
+    "enteredBy": {
+      "S606936": "Administrator",
+      "SYST15675": "API_MS"
+    },
+    "qtyOrdered": {
+      "S606936": 100.0,
+      "SYST15675": 1.0
+    },
+    "contactFirstName": {
+      "S606936": "Jeffrey",
+      "SYST15675": "jennifer"
+    },
+    "contactLastName": {
+      "S606936": "Sidney",
+      "SYST15675": "hopkins"
+    },
+    "altCurrencyRateSourceNote": {
+      "S606936": "2025-11-06 02:20:10",
+      "SYST15675": "2025-11-27 22:59:52"
+    },
+    "quantityOrdered": {
+      "S606936": 100,
+      "SYST15675": 1
+    },
+    "adminStatus": {
+      "S606936": "O",
+      "SYST15675": "J"
+    },
+    "jobType": {
+      "S606936": 5014,
+      "SYST15675": 5020
+    },
+    "dsfOrderID": {
+      "S606936": 573869,
+      "SYST15675": 0
+    },
+    "shipToJobContact": {
+      "S606936": 3408948,
+      "SYST15675": 3409155
+    },
+    "amountToInvoice": {
+      "S606936": 80.0,
+      "SYST15675": 73.92
+    },
+    "jobValue": {
+      "S606936": 80.0,
+      "SYST15675": 132.0
+    },
+    "invoiceW2PHandlingAmount": {
+      "S606936": true,
+      "SYST15675": false
+    },
+    "w2pShippingAmount": {
+      "S606936": 34.74,
+      "SYST15675": 11.5
+    },
+    "destinationBasedTaxing": {
+      "S606936": true,
+      "SYST15675": false
+    },
+    "pnref": {
+      "S606936": "121331539235",
+      "SYST15675": null
+    },
+    "originalQuotedPrice": {
+      "S606936": 80.0,
+      "SYST15675": 73.92
+    },
+    "amountToInvoiceForced": {
+      "S606936": false,
+      "SYST15675": true
+    },
+    "originalQuotedPriceForced": {
+      "S606936": false,
+      "SYST15675": true
+    },
+    "dsfPaymentMethod": {
+      "S606936": "CreditCard",
+      "SYST15675": null
+    },
+    "paymentAuthorizationBillingName": {
+      "S606936": "Jeffrey Sidney",
+      "SYST15675": null
+    },
+    "paymentAuthorizationCardExpiration": {
+      "S606936": "2025-11-06",
+      "SYST15675": null
+    },
+    "paymentAuthorizationCardholderAddress1": {
+      "S606936": "286 Redwall Ct",
+      "SYST15675": null
+    },
+    "paymentAuthorizationCardholderState": {
+      "S606936": "NV",
+      "SYST15675": null
+    },
+    "paymentAuthorizationDate": {
+      "S606936": "2025-11-06",
+      "SYST15675": null
+    },
+    "paymentAuthorizationCardholderCity": {
+      "S606936": "Dayton",
+      "SYST15675": null
+    },
+    "paymentAuthorizationAmount": {
+      "S606936": 114.74,
+      "SYST15675": 0
+    },
+    "paymentAuthorizationTime": {
+      "S606936": "02:00:00",
+      "SYST15675": null
+    },
+    "paymentAuthorizationToken": {
+      "S606936": "XXXX6880",
+      "SYST15675": null
+    },
+    "paymentAuthorizationCardholderZip": {
+      "S606936": "89403-7745",
+      "SYST15675": null
+    }
+  }
+}

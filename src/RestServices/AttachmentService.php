@@ -49,6 +49,26 @@ class AttachmentService extends RestService
 
         $response = $this->http->post('AttachmentService/addAttachmentFullDetails', $attachment, $params);
 
+        if (is_array($response)) {
+            // Check for various possible key locations in the response
+            $possibleKeys = ['attachment', 'attachmentKey', 'key', 'id', 'out'];
+            foreach ($possibleKeys as $k) {
+                if (isset($response[$k]) && !empty($response[$k])) {
+                    return (string)$response[$k];
+                }
+            }
+            
+            // If it's a flat array and the first element looks like a key
+            if (count($response) === 1 && is_string(reset($response))) {
+                return (string)reset($response);
+            }
+        }
+
+        // If the response is already a string (raw body), return it
+        if (is_string($response) && !empty($response)) {
+            return $response;
+        }
+
         return $response;
     }
 

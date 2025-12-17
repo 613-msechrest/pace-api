@@ -195,58 +195,37 @@ class RestModel implements ArrayAccess, JsonSerializable
             // Update an existing object - only send changed attributes
             $dirty = $this->getDirty();
             
-            if (empty($dirty)) {
-                // No changes to save
-                return true;
-            }
-            
             // Ensure primary key is included (needed to identify the object)
             $keyName = $this->guessPrimaryKeyName();
             $keyValue = $this->getAttribute($keyName);
             
-            // For compound keys, ensure individual key fields are present instead of primaryKey
+            if (empty($dirty)) {
+                return true;
+            }
+            
+            // Ensure the primary key is included in the payload
             if ($keyName && $keyValue) {
+                if (!isset($dirty[$keyName])) {
+                    $dirty[$keyName] = $keyValue;
+                }
+
                 if ($this->isCompoundKey($keyValue)) {
                     // For compound keys like JobPart (job:jobPart), use individual fields
-                    // Check if this type has the key fields as separate attributes
                     $keyParts = $this->splitKey($keyValue);
                     
-                    // Special handling for known compound key types
                     if ($this->type === 'JobPart' && count($keyParts) === 2) {
-                        // JobPart uses 'job' and 'jobPart' fields - always include them for compound keys
                         if (!isset($dirty['job'])) {
                             $dirty['job'] = $this->hasAttribute('job') ? $this->getAttribute('job') : $keyParts[0];
                         }
                         if (!isset($dirty['jobPart'])) {
                             $dirty['jobPart'] = $this->hasAttribute('jobPart') ? $this->getAttribute('jobPart') : $keyParts[1];
                         }
-                    } else {
-                        // For other compound keys, try to extract field names from keyName if it's compound
-                        // Otherwise fall back to primaryKey
-                        if (!isset($dirty[$keyName])) {
-                            $dirty[$keyName] = $keyValue;
-                        }
-                    }
-                } else {
-                    // Simple key - just ensure it's present
-                    if (!isset($dirty[$keyName])) {
-                        $dirty[$keyName] = $keyValue;
                     }
                 }
             }
             
             // Convert RestModel objects to their key values
             $attributes = $this->prepareAttributesForSave($dirty);
-
-            // Log the payload being sent for debugging (only if PACE_API_DEBUG is enabled)
-            if ($this->shouldLogDebug()) {
-                // Use dump() if available (for Pest tests), otherwise error_log
-                if (function_exists('dump')) {
-                    dump('[PaceAPI] UpdateObject payload for ' . $this->type . ':', $attributes);
-                } else {
-                    error_log('[PaceAPI] UpdateObject payload ' . $this->type . ': ' . json_encode($attributes));
-                }
-            }
 
             try {
                 $this->attributes = $this->client->updateObject($this->type, $attributes);
@@ -355,6 +334,7 @@ class RestModel implements ArrayAccess, JsonSerializable
         $nonBlockingPatterns = [
             '/Editing basis weight is not permitted/',
             '/is not permitted when.*is true/',
+            '/Unable to locate object: FileAttachment \(null\)/',
         ];
 
         foreach ($nonBlockingPatterns as $pattern) {
@@ -481,6 +461,16 @@ class RestModel implements ArrayAccess, JsonSerializable
         }
 
         $model = new static($this->client, $this->type, $attributes);
+
+        // Ensure the primary key is set in the attributes if the server didn't return it
+        // This prevents 500 errors when calling save() later on the returned model
+        $keyName = $model->guessPrimaryKeyName();
+        if ($keyName && !$model->hasAttribute($keyName)) {
+            $model->setAttribute($keyName, $key);
+            // Sync original to prevent the key from being marked as "dirty"
+            $model->original[$keyName] = $key;
+        }
+
         $model->exists = true;
         return $model;
     }
