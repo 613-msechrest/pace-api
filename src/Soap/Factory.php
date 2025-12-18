@@ -66,29 +66,6 @@ class Factory implements FactoryContract
     }
 
     /**
-     * Get the debug information for the instance.
-     *
-     * @return array
-     */
-    public function __debugInfo()
-    {
-        $options = $this->options;
-
-        if (isset($options['login'])) {
-            $options['login'] = '******* (redacted)';
-        }
-
-        if (isset($options['password'])) {
-            $options['password'] = '******* (redacted)';
-        }
-
-        return [
-            'options' => $options,
-            'types' => array_keys($this->types),
-        ];
-    }
-
-    /**
      * Get the SOAP client options.
      *
      * @return array

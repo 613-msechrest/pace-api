@@ -58,19 +58,6 @@ class HttpClient
     }
 
     /**
-     * Get the debug information for the instance.
-     *
-     * @return array
-     */
-    public function __debugInfo()
-    {
-        return [
-            'info' => 'GuzzleHttp\Client (redacted for security)',
-            'middleware' => array_keys(static::$middleware),
-        ];
-    }
-
-    /**
      * Set HTTP client options.
      *
      * @param array $options
@@ -167,8 +154,6 @@ class HttpClient
             if (getenv('PACE_API_DEBUG')) {
                 fwrite(STDERR, "[PaceAPI] Response: " . substr($body, 0, 1000) . (strlen($body) > 1000 ? '...' : '') . "\n");
             }
-            
-            // Try to decode as JSON, fall back to raw string
             
             // Try to decode as JSON, fall back to raw string
             $decoded = json_decode($body, true);

@@ -48,24 +48,6 @@ class Factory implements FactoryContract
     }
 
     /**
-     * Get the debug information for the instance.
-     *
-     * @return array
-     */
-    public function __debugInfo()
-    {
-        $options = $this->getOptions();
-
-        if (isset($options['auth'])) {
-            $options['auth'] = '******* (redacted)';
-        }
-
-        return [
-            'options' => $options,
-        ];
-    }
-
-    /**
      * Get the HTTP client options.
      *
      * @return array

@@ -816,23 +816,6 @@ class RestModel implements ArrayAccess, JsonSerializable
     }
 
     /**
-     * Get the debug information for the instance.
-     *
-     * @return array
-     */
-    public function __debugInfo()
-    {
-        return [
-            'type' => $this->type,
-            'exists' => $this->exists,
-            'attributes' => $this->attributes,
-            'original' => $this->original,
-            'relations' => $this->relations,
-            'client' => 'Pace\RestClient (redacted)',
-        ];
-    }
-
-    /**
      * Get the model as an array.
      *
      * @return array
