@@ -115,6 +115,24 @@ class RestBuilder
     }
 
     /**
+     * Add a case-insensitive filter.
+     *
+     * @param string $xpath
+     * @param mixed $value
+     * @param string $boolean
+     * @return self
+     */
+    public function filterIgnoreCase($xpath, $value, $boolean = 'and')
+    {
+        $upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $lower = 'abcdefghijklmnopqrstuvwxyz';
+
+        $translatedXpath = "translate({$xpath}, '{$upper}', '{$lower}')";
+
+        return $this->filter($translatedXpath, '=', strtolower($value), $boolean);
+    }
+
+    /**
      * Set the "limit" value of the query.
      *
      * @param int $value
