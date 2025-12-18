@@ -58,6 +58,19 @@ class HttpClient
     }
 
     /**
+     * Get the debug information for the instance.
+     *
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return [
+            'client' => 'GuzzleHttp\Client (redacted)',
+            'middleware' => array_keys(static::$middleware),
+        ];
+    }
+
+    /**
      * Set HTTP client options.
      *
      * @param array $options

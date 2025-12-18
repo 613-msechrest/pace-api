@@ -65,6 +65,19 @@ class RestClient
     }
 
     /**
+     * Get the debug information for the instance.
+     *
+     * @return array
+     */
+    public function __debugInfo()
+    {
+        return [
+            'url' => $this->url,
+            'services' => array_keys($this->services),
+        ];
+    }
+
+    /**
      * Dynamically retrieve the specified model.
      *
      * @param string $name
