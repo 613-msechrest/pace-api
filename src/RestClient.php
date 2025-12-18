@@ -74,6 +74,7 @@ class RestClient
         return [
             'url' => $this->url,
             'services' => array_keys($this->services),
+            'restFactory' => 'Pace\Rest\Factory (redacted)',
         ];
     }
 

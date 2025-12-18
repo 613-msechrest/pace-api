@@ -65,7 +65,7 @@ class HttpClient
     public function __debugInfo()
     {
         return [
-            'client' => 'GuzzleHttp\Client (redacted)',
+            'info' => 'GuzzleHttp\Client (redacted for security)',
             'middleware' => array_keys(static::$middleware),
         ];
     }
