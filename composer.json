@@ -45,7 +45,7 @@
             }
         }
     },
-    "version": "2.12.9",
+    "version": "2.13.0",
     "config": {
         "allow-plugins": {
             "pestphp/pest-plugin": true

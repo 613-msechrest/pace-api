@@ -253,4 +253,67 @@ describe('HTTP Client', function () {
         expect($response)->toBeString();
         expect($response)->not->toBeEmpty();
     });
+
+    it('can work with UDO_Colorway User Defined Objects (REST with SOAP fallback)', function () {
+        // Find UDO_Colorway objects - this works via REST
+        $colorways = $this->client->model('UDO_Colorway')
+            ->filter('@threadVendor', 'Vendor 1')
+            ->get();
+
+        // Safely dump the collection - dump keys and count to avoid segfault
+        dump([
+            'type' => get_class($colorways),
+            'count' => $colorways->count(),
+            'keys' => $colorways->keys(),
+        ]);
+
+        expect($colorways)->toBeInstanceOf(\Pace\RestKeyCollection::class);
+        expect($colorways->count())->toBeGreaterThan(0);
+        
+        // Verify we have keys
+        $keys = $colorways->keys();
+        expect($keys)->toBeArray();
+        expect(count($keys))->toBeGreaterThan(0);
+        
+        // Try to read the first object - this will use SOAP fallback
+        $firstKey = $keys[0];
+        dump(['attempting_to_read_key' => $firstKey]);
+        
+        // REST will delegate to SOAP for UDO read operations
+        $colorway = $colorways->first();
+        
+        // Dump the model for inspection
+        $attributes = $colorway->toArray();
+        dump([
+            'model_type' => get_class($colorway),
+            'key' => $colorway->key(),
+            'exists' => $colorway->exists,
+            'attribute_keys' => array_keys($attributes),
+            'attributes' => $attributes,
+        ]);
+        
+        // Verify the model was loaded correctly
+        expect($colorway !== null)->toBeTrue();
+        expect($colorway)->toBeInstanceOf(\Pace\RestModel::class);
+        expect($colorway->type())->toBe('UDO_Colorway');
+        expect($colorway->exists)->toBeTrue();
+        expect($colorway->threadVendor)->toBe('Vendor 1');
+        
+        // Test updating the colorway - this will also use SOAP fallback
+        $originalColorway = $colorway->colorway;
+        $colorway->colorway = '100';
+        $saved = $colorway->save();
+        
+        expect($saved)->toBeTrue();
+        
+        // Verify the update persisted (using SOAP fallback)
+        $updatedColorway = $this->client->model('UDO_Colorway')->read($colorway->key());
+        expect($updatedColorway->colorway)->toBe('100');
+        
+        // Restore original value for cleanup
+        $updatedColorway->colorway = $originalColorway;
+        $updatedColorway->save();
+
+        expect($updatedColorway->colorway)->toBe($originalColorway);
+    });
 });

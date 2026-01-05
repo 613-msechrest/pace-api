@@ -36,6 +36,41 @@ class RestClient
     protected $url;
 
     /**
+     * Connection details for SOAP fallback.
+     *
+     * @var string
+     */
+    protected $host;
+
+    /**
+     * Connection details for SOAP fallback.
+     *
+     * @var string
+     */
+    protected $login;
+
+    /**
+     * Connection details for SOAP fallback.
+     *
+     * @var string
+     */
+    protected $password;
+
+    /**
+     * Connection details for SOAP fallback.
+     *
+     * @var string
+     */
+    protected $scheme;
+
+    /**
+     * Lazy-loaded SOAP client for UDO operations.
+     *
+     * @var Client|null
+     */
+    protected $soapClient;
+
+    /**
      * Create a new instance.
      *
      * @param RestFactoryContract $restFactory
@@ -52,6 +87,12 @@ class RestClient
         $this->restFactory = $restFactory;
 
         $this->url = sprintf('%s://%s/rpc/rest/services/', $scheme, $host);
+        
+        // Store connection details for SOAP fallback
+        $this->host = $host;
+        $this->login = $login;
+        $this->password = $password;
+        $this->scheme = $scheme;
     }
 
     /**
@@ -166,6 +207,11 @@ class RestClient
      */
     public function createObject($object, $attributes)
     {
+        // UDOs don't have REST endpoints, delegate to SOAP
+        if ($this->isUdo($object)) {
+            return $this->getSoapClient()->createObject($object, $attributes);
+        }
+        
         return $this->service('CreateObject')->create($object, $attributes);
     }
 
@@ -178,6 +224,12 @@ class RestClient
      */
     public function deleteObject($object, $key)
     {
+        // UDOs don't have REST endpoints, delegate to SOAP
+        if ($this->isUdo($object)) {
+            $this->getSoapClient()->deleteObject($object, $key);
+            return [];
+        }
+        
         return $this->service('DeleteObject')->delete($object, $key);
     }
 
@@ -254,6 +306,11 @@ class RestClient
      */
     public function readObject($object, $key)
     {
+        // UDOs don't have REST endpoints, delegate to SOAP
+        if ($this->isUdo($object)) {
+            return $this->getSoapClient()->readObject($object, $key);
+        }
+        
         return $this->service('ReadObject')->read($object, $key);
     }
 
@@ -305,6 +362,11 @@ class RestClient
      */
     public function updateObject($object, $attributes)
     {
+        // UDOs don't have REST endpoints, delegate to SOAP
+        if ($this->isUdo($object)) {
+            return $this->getSoapClient()->updateObject($object, $attributes);
+        }
+        
         return $this->service('UpdateObject')->update($object, $attributes);
     }
 
@@ -361,5 +423,35 @@ class RestClient
     public function model($type)
     {
         return new \Pace\RestModel($this, $type);
+    }
+
+    /**
+     * Get a lazy-loaded SOAP client instance for UDO operations.
+     *
+     * @return \Pace\Client
+     */
+    protected function getSoapClient()
+    {
+        if (!isset($this->soapClient)) {
+            $this->soapClient = new Client(
+                new \Pace\Soap\Factory(),
+                $this->host,
+                $this->login,
+                $this->password,
+                $this->scheme
+            );
+        }
+        return $this->soapClient;
+    }
+
+    /**
+     * Determine if an object is a User Defined Object (UDO).
+     *
+     * @param string $object
+     * @return bool
+     */
+    protected function isUdo($object)
+    {
+        return strpos($object, 'UDO_') === 0;
     }
 }
