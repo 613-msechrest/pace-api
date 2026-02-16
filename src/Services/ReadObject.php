@@ -22,7 +22,45 @@ class ReadObject extends Service
 
         try {
             $response = $this->soap->{'read' . $object}($request);
-            return (array)$response->out;
+            
+            $out = $response->out;
+            
+            // Convert SOAP object to array, preserving all properties including null values
+            // Using get_object_vars() instead of (array) cast to preserve null properties
+            if (is_object($out)) {
+                $result = get_object_vars($out);
+                
+                // Also use reflection to get any properties that might not be accessible
+                // This ensures we capture all fields, even if they're null or protected
+                try {
+                    $reflection = new \ReflectionObject($out);
+                    foreach ($reflection->getProperties() as $property) {
+                        $property->setAccessible(true);
+                        $propName = $property->getName();
+                        $propValue = $property->getValue($out);
+                        // Only add if not already set (get_object_vars might have missed it)
+                        if (!array_key_exists($propName, $result)) {
+                            $result[$propName] = $propValue;
+                        }
+                    }
+                } catch (\ReflectionException $e) {
+                    // If reflection fails, continue with get_object_vars result
+                }
+            } else {
+                $result = (array)$out;
+            }
+            
+            // Debug: Log raw SOAP response to see all fields returned
+            if (getenv('PACE_API_DEBUG')) {
+                error_log("[SOAP ReadObject] Response type: " . gettype($out));
+                if (is_object($out)) {
+                    error_log("[SOAP ReadObject] Object class: " . get_class($out));
+                    error_log("[SOAP ReadObject] get_object_vars: " . json_encode(get_object_vars($out)));
+                }
+                error_log("[SOAP ReadObject] Final result for {$object} key {$key}: " . json_encode($result));
+            }
+            
+            return $result;
 
         } catch (SoapFault $exception) {
             if ($this->isObjectNotFound($exception)) {

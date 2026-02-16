@@ -130,6 +130,11 @@ it('throws exception for unknown service', function () {
 it('can update an Inventory Item using the save method', function () {
     // Read the item to get current description
     $inventoryItem = $this->client->inventoryItem->read('340-RD102');
+
+    if ($inventoryItem === null) {
+        $this->markTestSkipped('Inventory item 340-RD102 not found. Ensure it exists in the test environment.');
+    }
+
     $originalDescription = $inventoryItem->description;
     
     // Change description to a new unique value
@@ -189,57 +194,6 @@ it('can sort a keyCollection by property', function () {
             expect($firstDesc->name >= $lastDesc->name)->toBeTrue();
         }
     }
-});
-
-it('can retrieve a Quote Item Type by name with quotes', function () {
-    $quoteItemTypeName = '12" x 12" - Single Image';
-
-    $job = $this->client->job->read('S606972');
-
-    $discount = [
-        'description' => 'Testing discount capabilities on a Job level',
-        'discountAmount' => 1.99,
-        'externalId' => 'CouponCode199',
-        'job' => $job->job,
-        'invoiceExtraType' => 4 // 4 = Discount
-    ];
-
-    $jobDiscount = $job->jobDiscounts()->first() ?? $this->client->jobDiscount;
-    $jobDiscount->description = 'Testing discount capabilities on a Job level';
-    $jobDiscount->discountAmount = 1.99;
-    $jobDiscount->externalId = 'CouponCode199';
-    $jobDiscount->job = $job->job;
-    $jobDiscount->invoiceExtraType = 4;
-    $jobDiscount->save();
-
-    dd($job->jobDiscounts()->first());
-
-    $originalDescription = $jobPart->description;
-    
-    // Change description to a new unique value
-    $newDescription = 'Job Part | api.test.t0.' . uniqid();
-    $jobPart->description = $newDescription;
-    
-    // Save should handle validation warnings gracefully
-    $jobPart->save();
-});
-
-it('shows me the sheet size quote item types', function () {
-    // Get all sheet sizes (limit 0 means no limit)
-    $sheetSizes = $this->client->quoteItemType
-        ->filter('@category', 5046)
-        ->get();
-    
-    // Use sortBy() for natural sorting (handles numbers in strings correctly)
-    // This will sort "2 Item" before "10 Item" instead of alphabetically
-    $sheetSizes->sortBy('name', true); // descending with natural sort
-    
-    $sheetSizeNames = [];
-    foreach ($sheetSizes as $sheetSize) {
-        $sheetSizeNames[] = $sheetSize->name;
-    }
-
-    dd($sheetSizeNames);
 });
 
 it('can retrieve the ship via list', function () {

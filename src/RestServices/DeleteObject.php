@@ -16,16 +16,24 @@ class DeleteObject extends RestService
      */
     public function delete($object, $key, $txnId = null)
     {
+        // REST API expects path DeleteObject/DeleteObject with query params: type, key, txnId
         $params = [
-            'primaryKey' => $key,
+            'type' => $object,
+            'key' => is_array($key) ? implode(':', $key) : (string) $key,
         ];
 
         if ($txnId !== null) {
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->delete("DeleteObject/delete{$object}", $params);
-
-        return $response;
+        try {
+            return $this->http->delete('DeleteObject/DeleteObject', $params);
+        } catch (\Exception $e) {
+            // 404 / "Unable to locate object" = already gone; treat as success (idempotent delete)
+            if ($e->getCode() === 404 || strpos($e->getMessage(), 'Unable to locate object') !== false) {
+                return [];
+            }
+            throw $e;
+        }
     }
 }

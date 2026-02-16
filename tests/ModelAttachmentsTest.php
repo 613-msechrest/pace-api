@@ -38,11 +38,12 @@ class ModelAttachmentsTest extends TestCase
         $service = Mockery::mock(AttachmentService::class);
         $client->shouldReceive('attachment')->andReturn($service);
         $service->shouldReceive('add')
-            ->with('Company', '001', 'logo', 'logo.png', 'SomeBinaryData')
+            ->with('Company', '001', 'logo', 'logo.png', 'SomeBinaryData', null, null)
             ->andReturn('abcd1234');
         $fileAttachment = Mockery::mock(Model::class);
         $client->shouldReceive('model')->with('FileAttachment')->andReturn($fileAttachment);
         $fileAttachment->shouldReceive('read')->with('abcd1234')->andReturn($fileAttachment);
+        $fileAttachment->shouldReceive('hasAttribute')->with('attachment')->andReturn(true);
         $model = new Model($client, 'Company', ['id' => '001']);
         $this->assertEquals($fileAttachment, $model->attachFile('logo.png', 'SomeBinaryData', 'logo'));
     }

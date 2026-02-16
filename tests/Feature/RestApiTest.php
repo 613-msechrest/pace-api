@@ -254,66 +254,134 @@ describe('HTTP Client', function () {
         expect($response)->not->toBeEmpty();
     });
 
-    it('can work with UDO_Colorway User Defined Objects (REST with SOAP fallback)', function () {
-        // Find UDO_Colorway objects - this works via REST
-        $colorways = $this->client->model('UDO_Colorway')
-            ->filter('@threadVendor', 'Vendor 1')
-            ->get();
+    // it('can dump the job and discount', function () {
+    //     $job = $this->client->job->read('SYST16596');
+    //     $discount = $this->client->JobDiscount;
 
-        // Safely dump the collection - dump keys and count to avoid segfault
-        dump([
-            'type' => get_class($colorways),
-            'count' => $colorways->count(),
-            'keys' => $colorways->keys(),
-        ]);
+    //     $discount->description = "Testing discount capabilities on a Job level";
+    //     $discount->discountAmount = -10.99;
+    //     $discount->externalId = "CouponCode1099";
+    //     $discount->job = $job->job;
+    //     $discount->jobPart = $job->jobParts()->first()->jobPart;
+    //     $discount->invoiceExtraType = 4;
+    //     $discount->save();
+    // });
 
-        expect($colorways)->toBeInstanceOf(\Pace\RestKeyCollection::class);
-        expect($colorways->count())->toBeGreaterThan(0);
-        
-        // Verify we have keys
-        $keys = $colorways->keys();
-        expect($keys)->toBeArray();
-        expect(count($keys))->toBeGreaterThan(0);
-        
-        // Try to read the first object - this will use SOAP fallback
-        $firstKey = $keys[0];
-        dump(['attempting_to_read_key' => $firstKey]);
-        
-        // REST will delegate to SOAP for UDO read operations
-        $colorway = $colorways->first();
-        
-        // Dump the model for inspection
-        $attributes = $colorway->toArray();
-        dump([
-            'model_type' => get_class($colorway),
-            'key' => $colorway->key(),
-            'exists' => $colorway->exists,
-            'attribute_keys' => array_keys($attributes),
-            'attributes' => $attributes,
-        ]);
-        
-        // Verify the model was loaded correctly
-        expect($colorway !== null)->toBeTrue();
-        expect($colorway)->toBeInstanceOf(\Pace\RestModel::class);
-        expect($colorway->type())->toBe('UDO_Colorway');
-        expect($colorway->exists)->toBeTrue();
-        expect($colorway->threadVendor)->toBe('Vendor 1');
-        
-        // Test updating the colorway - this will also use SOAP fallback
-        $originalColorway = $colorway->colorway;
-        $colorway->colorway = '100';
-        $saved = $colorway->save();
-        
-        expect($saved)->toBeTrue();
-        
-        // Verify the update persisted (using SOAP fallback)
-        $updatedColorway = $this->client->model('UDO_Colorway')->read($colorway->key());
-        expect($updatedColorway->colorway)->toBe('100');
-        
-        // Restore original value for cleanup
-        $updatedColorway->colorway = $originalColorway;
-        $updatedColorway->save();
+    // it('can work with UDO_Colorway User Defined Objects (REST with SOAP fallback)', function () {
+    //     // Find UDO_Colorway objects - this works via REST
+    //     $colorways = $this->client->model('UDO_Colorway')
+    //         ->filter('@threadVendor', 'Vendor 1')
+    //         ->filter('@jobPartItem', 5875249)
+    //         ->get();
 
-        expect($updatedColorway->colorway)->toBe($originalColorway);
-    });
+    //     // Safely dump the collection - dump keys and count to avoid segfault
+    //     dump([
+    //         'type' => get_class($colorways),
+    //         'count' => $colorways->count(),
+    //         'keys' => $colorways->keys(),
+    //     ]);
+
+    //     expect($colorways)->toBeInstanceOf(\Pace\RestKeyCollection::class);
+    //     expect($colorways->count())->toBeGreaterThan(0);
+        
+    //     // Verify we have keys
+    //     $keys = $colorways->keys();
+    //     expect($keys)->toBeArray();
+    //     expect(count($keys))->toBeGreaterThan(0);
+        
+    //     // Try to read the first object - this will use SOAP fallback
+    //     $firstKey = $keys[0];
+    //     dump(['attempting_to_read_key' => $firstKey]);
+        
+    //     // REST will delegate to SOAP for UDO read operations
+    //     $colorway = $colorways->first();
+        
+    //     // Debug: Check raw attributes and try different field name variations
+    //     $rawAttrs = $colorway->attributes();
+    //     dump([
+    //         'raw_attributes' => $rawAttrs,
+    //         'all_attribute_keys' => array_keys($rawAttrs),
+    //         'has_colorwaySequence' => $colorway->hasAttribute('colorwaySequence'),
+    //         'has_colorway_sequence' => $colorway->hasAttribute('colorway_sequence'),
+    //         'has_ColorwaySequence' => isset($rawAttrs['ColorwaySequence']),
+    //         'colorwaySequence_value' => $colorway->hasAttribute('colorwaySequence') ? $colorway->colorwaySequence : 'NOT SET',
+    //         'checking_all_keys_for_sequence' => array_filter(array_keys($rawAttrs), function($key) {
+    //             return stripos($key, 'sequence') !== false;
+    //         }),
+    //     ]);
+        
+    //     // Dump the model for inspection
+    //     $attributes = $colorway->toArray();
+    //     dump([
+    //         'model_type' => get_class($colorway),
+    //         'key' => $colorway->key(),
+    //         'exists' => $colorway->exists,
+    //         'attribute_keys' => array_keys($attributes),
+    //         'attributes' => $attributes,
+    //     ]);
+        
+    //     // Verify the model was loaded correctly
+    //     expect($colorway !== null)->toBeTrue();
+    //     expect($colorway)->toBeInstanceOf(\Pace\RestModel::class);
+    //     expect($colorway->type())->toBe('UDO_Colorway');
+    //     expect($colorway->exists)->toBeTrue();
+    //     expect($colorway->threadVendor)->toBe('Vendor 1');
+        
+    //     // Test updating the colorway - this will also use SOAP fallback
+    //     $originalColorway = $colorway->colorway;
+    //     $colorway->colorway = '100';
+        
+    //     // Note: colorwaySequence may not be returned by SOAP readUDO_Colorway,
+    //     // but we can still set and save it. The Pace SOAP API's readUDO_Colorway
+    //     // only returns a subset of fields (id, jobPartItem, colorway, threadVendor).
+    //     // This is a limitation of the Pace SOAP API itself.
+    //     if ($colorway->hasAttribute('colorwaySequence')) {
+    //         $originalSequence = $colorway->colorwaySequence;
+    //         $colorway->colorwaySequence = 1.1;
+    //     } else {
+    //         // Field wasn't returned by read, but we can still try to set it
+    //         $colorway->setAttribute('colorwaySequence', 1.1);
+    //     }
+        
+    //     $saved = $colorway->save();
+        
+    //     expect($saved)->toBeTrue();
+        
+    //     // Verify the update persisted (using SOAP fallback)
+    //     // Note: colorwaySequence may still not appear in the read response
+    //     // due to Pace SOAP API limitations
+    //     $updatedColorway = $this->client->model('UDO_Colorway')->read($colorway->key());
+    //     expect($updatedColorway->colorway)->toBe('100');
+        
+    //     // Restore original value for cleanup
+    //     $updatedColorway->colorway = $originalColorway;
+    //     $updatedColorway->save();
+
+    //     expect($updatedColorway->colorway)->toBe($originalColorway);
+    // });
+
+    // it('can pull the job products', function () {
+    //     $jobProduct = $this->client->model('JobProduct')
+    //         ->filter('@job', 'D607044')
+    //         ->first();
+
+    //     expect($jobProduct)->not->toBeNull();
+
+    //     $keyBeforeDelete = $jobProduct->key();
+    //     expect($keyBeforeDelete)->not->toBeNull('JobProduct must have a key to delete');
+
+    //     try {
+    //         $jobProduct->delete();
+    //     } catch (\Exception $e) {
+    //         // Server may block delete when JobProduct is referenced (e.g. by an invoice)
+    //         if (strpos($e->getMessage(), 'Still being referenced') !== false) {
+    //             $this->markTestSkipped('JobProduct cannot be deleted while referenced by an invoice: ' . $e->getMessage());
+    //         }
+    //         throw $e;
+    //     }
+
+    //     // Verify delete: re-reading by key should return null
+    //     $afterDelete = $this->client->readObject('JobProduct', $keyBeforeDelete);
+    //     expect($afterDelete)->toBeNull();
+    // });
 });

@@ -466,10 +466,12 @@ class RestModel implements ArrayAccess, JsonSerializable
 
         $model = new static($this->client, $this->type, $attributes);
 
-        // Ensure the primary key is set in the attributes if the server didn't return it
-        // This prevents 500 errors when calling save() later on the returned model
+        // Ensure the primary key is set in the attributes if the server didn't return it (or returned null).
+        // Some types (e.g. JobProduct) return key parts (job, product) but primaryKey/jobProduct as null,
+        // which would make key() null and break save()/delete().
         $keyName = $model->guessPrimaryKeyName();
-        if ($keyName && !$model->hasAttribute($keyName)) {
+        $existingKey = $keyName ? $model->getAttribute($keyName) : null;
+        if ($keyName && ($existingKey === null || $existingKey === '')) {
             $model->setAttribute($keyName, $key);
             // Sync original to prevent the key from being marked as "dirty"
             $model->original[$keyName] = $key;
