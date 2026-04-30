@@ -44,6 +44,9 @@ The package now registers multiple clients:
 // Get the appropriate client based on protocol configuration
 $client = app('pace.client');
 
+// Recommended: type-hint a single contract (resolves SOAP or REST based on PACE_PROTOCOL)
+// public function __construct(\Pace\Contracts\PaceClient $client) { ... }
+
 // Or get specific clients
 $soapClient = app(Pace\Client::class);
 $restClient = app(Pace\RestClient::class);

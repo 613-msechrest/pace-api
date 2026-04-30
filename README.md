@@ -42,6 +42,35 @@ use Pace\Soap\Factory as SoapFactory;
 $pace = new Pace(new SoapFactory(), 'epace-staging.domain.com', 'apiuser', 'apipassword');
 ```
 
+## Laravel
+
+This package registers both the SOAP and REST clients in Laravel's container. You can switch between them via configuration:
+
+```env
+PACE_PROTOCOL=soap
+# or
+PACE_PROTOCOL=rest
+```
+
+Recommended injection type (protocol-agnostic):
+
+```php
+use Pace\Contracts\PaceClient;
+
+public function __construct(PaceClient $pace)
+{
+    $this->pace = $pace;
+}
+```
+
+You can also resolve explicitly:
+
+```php
+$client = app('pace.client'); // protocol-aware (SOAP or REST)
+$soapClient = app(\Pace\Client::class);
+$restClient = app(\Pace\RestClient::class);
+```
+
 ## CRUDD
 
 ### Creating an object
