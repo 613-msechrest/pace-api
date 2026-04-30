@@ -4,6 +4,7 @@ namespace Pace;
 
 use Pace\Soap\Factory as SoapFactory;
 use Illuminate\Support\ServiceProvider;
+use Pace\Contracts\PaceClient as PaceClientContract;
 
 class PaceServiceProvider extends ServiceProvider
 {
@@ -59,6 +60,11 @@ class PaceServiceProvider extends ServiceProvider
             }
             
             return $app->make(Client::class);
+        });
+
+        // Allow apps to type-hint a single contract and still support protocol switching.
+        $this->app->bind(PaceClientContract::class, function ($app) {
+            return $app->make('pace.client');
         });
     }
 }

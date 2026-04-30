@@ -6,8 +6,9 @@ use Closure;
 use InvalidArgumentException;
 use Pace\Rest\Factory as RestFactory;
 use Pace\Contracts\Rest\Factory as RestFactoryContract;
+use Pace\Contracts\PaceClient as PaceClientContract;
 
-class RestClient
+class RestClient implements PaceClientContract
 {
     /**
      * The primary key field.

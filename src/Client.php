@@ -7,8 +7,9 @@ use InvalidArgumentException;
 use Pace\Soap\DateTimeMapping;
 use Pace\Report\Builder as ReportBuilder;
 use Pace\Contracts\Soap\Factory as SoapFactory;
+use Pace\Contracts\PaceClient as PaceClientContract;
 
-class Client
+class Client implements PaceClientContract
 {
     /**
      * The primary key field.

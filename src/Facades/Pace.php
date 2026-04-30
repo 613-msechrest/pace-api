@@ -2,7 +2,6 @@
 
 namespace Pace\Facades;
 
-use Pace\Client;
 use Illuminate\Support\Facades\Facade;
 
 class Pace extends Facade
@@ -14,6 +13,8 @@ class Pace extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return Client::class;
+        // Resolve the correct client (SOAP vs REST) based on config('pace.protocol')
+        // as registered by PaceServiceProvider.
+        return 'pace.client';
     }
 }
