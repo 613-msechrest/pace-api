@@ -284,6 +284,43 @@ class Model implements ArrayAccess, JsonSerializable
     }
 
     /**
+     * Get a subset of the model's attributes.
+     *
+     * Laravel-style: accepts an array of keys or multiple key arguments.
+     *
+     * @param mixed $keys
+     * @return array
+     */
+    public function only($keys)
+    {
+        $keys = is_array($keys) ? $keys : func_get_args();
+
+        $results = [];
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $this->attributes)) {
+                $results[$key] = $this->attributes[$key];
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Get all of the model's attributes except the given keys.
+     *
+     * Laravel-style: accepts an array of keys or multiple key arguments.
+     *
+     * @param mixed $keys
+     * @return array
+     */
+    public function except($keys)
+    {
+        $keys = is_array($keys) ? $keys : func_get_args();
+
+        return array_diff_key($this->attributes, array_flip($keys));
+    }
+
+    /**
      * Fetch a "has many" relationship.
      *
      * @param string $relatedType
