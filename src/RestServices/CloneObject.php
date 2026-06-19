@@ -35,7 +35,10 @@ class CloneObject extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->post("/CloneObject/clone{$object}", $newAttributes, $params);
+        // Swagger body is an Estimate-shaped object; send {} when there are no overrides.
+        $body = $newAttributes === [] ? new \stdClass() : $newAttributes;
+
+        $response = $this->http->post("CloneObject/clone{$object}", $body, $params);
 
         return $response;
     }

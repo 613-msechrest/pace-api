@@ -478,7 +478,15 @@ class RestModel implements ArrayAccess, JsonSerializable
      */
     public function clone(array $newAttributes = [], $newKey = null, ?array $newParent = null)
     {
-        $attributes = $this->client->cloneObject($this->type, $this->attributes, $newAttributes, $newKey, $newParent);
+        $attributes = $this->attributes;
+
+        if ($this->key() !== null) {
+            $keyName = $this->guessPrimaryKeyName();
+            $attributes[RestClient::PRIMARY_KEY] = $this->key();
+            $attributes[$keyName] = $this->key();
+        }
+
+        $attributes = $this->client->cloneObject($this->type, $attributes, $newAttributes, $newKey, $newParent);
 
         $model = new static($this->client, $this->type, $attributes);
         $model->exists = true;

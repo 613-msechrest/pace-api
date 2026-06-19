@@ -24,7 +24,7 @@ class InvokeAction extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->post("/InvokeAction/{$action}", $data, $params);
+        $response = $this->http->post("InvokeAction/{$action}", $data, $params);
 
         return $response;
     }

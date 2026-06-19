@@ -22,4 +22,10 @@ class TypeTest extends TestCase
         $this->assertEquals('jobStatus', Type::singularize('jobStatus'));
         $this->assertEquals('jobStatus', Type::singularize('jobStatuses'));
     }
+
+    public function testKeyName()
+    {
+        $this->assertEquals('estimateNumber', Type::keyName('Estimate'));
+        $this->assertEquals('attachment', Type::keyName('FileAttachment'));
+    }
 }

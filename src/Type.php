@@ -59,6 +59,7 @@ class Type
      * @var array
      */
     protected static $irregularKeys = [
+        'Estimate' => 'estimateNumber',
         'FileAttachment' => 'attachment',
     ];
 

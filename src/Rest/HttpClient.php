@@ -93,7 +93,7 @@ class HttpClient
      * @param array $params
      * @return array
      */
-    public function post($endpoint, array $data = [], array $params = [])
+    public function post($endpoint, $data = [], array $params = [])
     {
         return $this->request('POST', $endpoint, [
             'query' => $params,

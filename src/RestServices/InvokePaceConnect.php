@@ -24,7 +24,7 @@ class InvokePaceConnect extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->post("/InvokePaceConnect/{$process}", $data, $params);
+        $response = $this->http->post("InvokePaceConnect/{$process}", $data, $params);
 
         return $response;
     }

@@ -30,7 +30,7 @@ class InvokeProcess extends RestService
             $params['txnId'] = $txnId;
         }
 
-        $response = $this->http->post("/InvokeProcess/{$process}", $data, $params);
+        $response = $this->http->post("InvokeProcess/{$process}", $data, $params);
 
         return $response;
     }
