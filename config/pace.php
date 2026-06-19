@@ -51,4 +51,17 @@ return [
 
     'protocol' => env('PACE_PROTOCOL', 'soap'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Licensee Company ID
+    |--------------------------------------------------------------------------
+    |
+    | The Company primary key for the licensee company configured in Pace
+    | administration. Required as newParentKey when cloning top-level Estimates
+    | via the REST CloneObject API.
+    |
+    */
+
+    'licensee_company' => env('PACE_LICENSEE_COMPANY', '001'),
+
 ];

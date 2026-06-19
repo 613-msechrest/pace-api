@@ -167,6 +167,19 @@ describe('Object-Based API', function () {
         expect($firstPeriod->startDate)->toBe('2025-10-01');
         expect($firstPeriod->endDate)->toBe('2025-10-31');
     });
+
+    it('can clone an object and return the new object', function () {
+        $estimate = $this->client->estimate->read('1445642');
+
+        expect($estimate)->not->toBeNull();
+
+        $newEstimate = $estimate->clone();
+
+        expect($newEstimate)->toBeInstanceOf(Pace\RestModel::class);
+        expect($newEstimate->exists)->toBeTrue();
+        expect((string) $newEstimate->key())->not->toBe('1445642');
+        expect($newEstimate->key())->not->toBeNull();
+    });
 });
 
 describe('Mobile Services', function () {

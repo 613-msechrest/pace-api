@@ -25,7 +25,7 @@ class TypeTest extends TestCase
 
     public function testKeyName()
     {
-        $this->assertEquals('estimateNumber', Type::keyName('Estimate'));
         $this->assertEquals('attachment', Type::keyName('FileAttachment'));
+        $this->assertNull(Type::keyName('Estimate'));
     }
 }

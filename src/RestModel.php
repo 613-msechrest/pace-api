@@ -113,7 +113,11 @@ class RestModel implements ArrayAccess, JsonSerializable
      */
     protected function guessPrimaryKeyName()
     {
-        // Try type-specific key name first
+        if ($this->hasNonEmptyAttribute(RestClient::PRIMARY_KEY)) {
+            return RestClient::PRIMARY_KEY;
+        }
+
+        // Try type-specific key name
         if ($keyName = Type::keyName($this->type)) {
             return $keyName;
         }
@@ -129,6 +133,33 @@ class RestModel implements ArrayAccess, JsonSerializable
 
         // Fall back to camelized type name
         return Type::camelize($this->type);
+    }
+
+    /**
+     * Determine if an attribute exists and has a non-empty value.
+     *
+     * @param string $name
+     * @return bool
+     */
+    protected function hasNonEmptyAttribute($name)
+    {
+        return $this->hasAttribute($name)
+            && $this->getAttribute($name) !== null
+            && $this->getAttribute($name) !== '';
+    }
+
+    /**
+     * Resolve the key used for REST API operations (read, clone, delete).
+     *
+     * @return mixed
+     */
+    protected function resolveApiKey()
+    {
+        if ($this->hasNonEmptyAttribute(RestClient::PRIMARY_KEY)) {
+            return $this->getAttribute(RestClient::PRIMARY_KEY);
+        }
+
+        return $this->key();
     }
 
     /**
@@ -480,13 +511,15 @@ class RestModel implements ArrayAccess, JsonSerializable
     {
         $attributes = $this->attributes;
 
-        if ($this->key() !== null) {
-            $keyName = $this->guessPrimaryKeyName();
-            $attributes[RestClient::PRIMARY_KEY] = $this->key();
-            $attributes[$keyName] = $this->key();
+        $cloneKey = $this->resolveApiKey();
+        if ($cloneKey !== null && $cloneKey !== '') {
+            $attributes[RestClient::PRIMARY_KEY] = $cloneKey;
         }
 
         $attributes = $this->client->cloneObject($this->type, $attributes, $newAttributes, $newKey, $newParent);
+
+
+        dd($attributes);
 
         $model = new static($this->client, $this->type, $attributes);
         $model->exists = true;
@@ -514,7 +547,11 @@ class RestModel implements ArrayAccess, JsonSerializable
 
         $model = new static($this->client, $this->type, $attributes);
 
-        // Ensure the primary key is set in the attributes if the server didn't return it (or returned null).
+        // Always record the key used for the read; REST services identify objects by primaryKey.
+        $model->setAttribute(RestClient::PRIMARY_KEY, $key);
+        $model->original[RestClient::PRIMARY_KEY] = $key;
+
+        // Ensure the type-specific key is set if the server didn't return it (or returned null).
         // Some types (e.g. JobProduct) return key parts (job, product) but primaryKey/jobProduct as null,
         // which would make key() null and break save()/delete().
         $keyName = $model->guessPrimaryKeyName();

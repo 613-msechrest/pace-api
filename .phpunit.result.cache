@@ -1,0 +1,1 @@
+{"version":1,"defects":[],"times":{"TypeTest::testCamelize":0.008,"TypeTest::testModelify":0,"TypeTest::testSingularize":0.008,"TypeTest::testKeyName":0}}
