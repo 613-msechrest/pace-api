@@ -292,6 +292,27 @@ class KeyCollection implements ArrayAccess, Countable, Iterator, JsonSerializabl
     }
 
     /**
+     * Load each model once and return an array of attribute subsets (like Model::only).
+     *
+     * @param string|array $keys Attribute name(s). Array or variadic arguments.
+     * @return array<int, array<string, mixed>>
+     */
+    public function pluckOnly($keys)
+    {
+        $keys = is_array($keys) ? $keys : func_get_args();
+        $results = [];
+
+        foreach ($this->keys as $key) {
+            $model = $this->read($key);
+            if ($model !== null) {
+                $results[] = $model->only($keys);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * Rewind to the first key.
      */
     public function rewind()

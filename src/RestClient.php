@@ -192,11 +192,14 @@ class RestClient implements PaceClientContract
      *
      * @param string $object
      * @param array $attributes
+     * @param array $newAttributes
+     * @param int|string|null $newKey
+     * @param array|null $newParent
      * @return array
      */
-    public function cloneObject($object, $attributes)
+    public function cloneObject($object, array $attributes, array $newAttributes = [], $newKey = null, array|null $newParent = null)
     {
-        return $this->service('CloneObject')->clone($object, $attributes);
+        return $this->service('CloneObject')->clone($object, $attributes, $newAttributes, $newKey, $newParent);
     }
 
     /**

@@ -480,7 +480,10 @@ class RestModel implements ArrayAccess, JsonSerializable
     {
         $attributes = $this->client->cloneObject($this->type, $this->attributes, $newAttributes, $newKey, $newParent);
 
-        return new static($this->client, $this->type, $attributes);
+        $model = new static($this->client, $this->type, $attributes);
+        $model->exists = true;
+
+        return $model;
     }
 
     /**

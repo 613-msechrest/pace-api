@@ -220,6 +220,27 @@ class RestKeyCollection implements ArrayAccess, Countable, Iterator
     }
 
     /**
+     * Load each model once and return an array of attribute subsets (like RestModel::only).
+     *
+     * @param string|array $keys Attribute name(s). Array or variadic arguments.
+     * @return array<int, array<string, mixed>>
+     */
+    public function pluckOnly($keys)
+    {
+        $keys = is_array($keys) ? $keys : func_get_args();
+        $results = [];
+
+        foreach ($this->keys as $key) {
+            $model = $this->model->read($key);
+            if ($model !== null) {
+                $results[] = $model->only($keys);
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * Sort the collection by a property.
      *
      * @param string $property The property name to sort by (e.g., 'name')
