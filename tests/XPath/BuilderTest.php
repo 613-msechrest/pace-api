@@ -40,6 +40,8 @@ class BuilderTest extends TestCase
         $this->assertEquals((new Builder)->filter('@id', 99)->toXPath(), '@id = 99');
         $this->assertEquals((new Builder)->filter('@actualHours', 0.25)->toXPath(), '@actualHours = 0.25');
         $this->assertEquals((new Builder)->filter('@job', '99999')->toXPath(), '@job = "99999"');
+        $this->assertEquals((new Builder)->filter('@estimateQuantity', '2248405')->toXPath(), '@estimateQuantity = 2248405');
+        $this->assertEquals((new Builder)->filter('@company', '001')->toXPath(), '@company = "001"');
         $this->assertEquals((new Builder)->filter('@active', true)->toXPath(), "@active = 'true'");
         $builder = new Builder;
         $builder->filter('@date', new DateTime('2016-02-01'));

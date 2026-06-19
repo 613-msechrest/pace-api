@@ -3,9 +3,9 @@
 namespace Pace;
 
 use Closure;
-use DateTime;
 use InvalidArgumentException;
 use Pace\ModelNotFoundException;
+use Pace\XPath\Value as XPathValue;
 
 class RestBuilder
 {
@@ -316,7 +316,7 @@ class RestBuilder
      *
      * @return string
      */
-    protected function toXPath()
+    public function toXPath()
     {
         $xpath = [];
 
@@ -328,11 +328,11 @@ class RestBuilder
             } elseif ($this->isFunction($filter['operator'])) {
                 // Handle function filters
                 $xpath[] = sprintf('%s %s(%s, %s)',
-                    $filter['boolean'], $filter['operator'], $filter['xpath'], $this->formatValue($filter['value']));
+                    $filter['boolean'], $filter['operator'], $filter['xpath'], $this->formatValue($filter['value'], null, true));
             } else {
                 // Handle simple filters
                 $xpath[] = sprintf('%s %s %s %s',
-                    $filter['boolean'], $filter['xpath'], $filter['operator'], $this->formatValue($filter['value']));
+                    $filter['boolean'], $filter['xpath'], $filter['operator'], $this->formatValue($filter['value'], $filter['xpath']));
             }
         }
 
@@ -385,42 +385,13 @@ class RestBuilder
      * Format a value for XPath expression.
      *
      * @param mixed $value
+     * @param string|null $xpath
+     * @param bool $forFunction
      * @return string
      */
-    protected function formatValue($value)
+    protected function formatValue($value, $xpath = null, $forFunction = false)
     {
-        switch (true) {
-            case ($value === null):
-                return 'null';
-
-            case ($value instanceof DateTime):
-                // Use date() function syntax as documented in Pace API
-                return sprintf('date( %d, %d, %d )', $value->format('Y'), $value->format('n'), $value->format('j'));
-
-            case (is_int($value)):
-            case (is_float($value)):
-                return (string)$value;
-
-            case (is_bool($value)):
-                return $value ? '\'true\'' : '\'false\'';
-
-            default:
-                // Choose quote style based on content to avoid escaping
-                if (strpos($value, '"') !== false && strpos($value, "'") === false) {
-                    // Contains double quotes but no single quotes - use single quotes
-                    return "'$value'";
-                } elseif (strpos($value, "'") !== false && strpos($value, '"') === false) {
-                    // Contains single quotes but no double quotes - use double quotes (no escaping needed)
-                    return "\"$value\"";
-                } elseif (strpos($value, '"') !== false && strpos($value, "'") !== false) {
-                    // Contains both - use single quotes and escape single quotes by doubling
-                    $escaped = str_replace("'", "''", $value);
-                    return "'$escaped'";
-                } else {
-                    // No quotes - use double quotes (standard)
-                    return "\"$value\"";
-                }
-        }
+        return XPathValue::format($value, $xpath, $forFunction);
     }
 
     /**

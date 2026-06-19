@@ -345,7 +345,7 @@ class Builder
     protected function compileFilter(array $filter)
     {
         return sprintf('%s %s %s %s',
-            $filter['boolean'], $filter['xpath'], $filter['operator'], $this->value($filter['value']));
+            $filter['boolean'], $filter['xpath'], $filter['operator'], $this->value($filter['value'], $filter['xpath']));
     }
 
     /**
@@ -357,7 +357,7 @@ class Builder
     protected function compileFunction(array $filter)
     {
         return sprintf('%s %s(%s, %s)',
-            $filter['boolean'], $filter['operator'], $filter['xpath'], $this->value($filter['value']));
+            $filter['boolean'], $filter['operator'], $filter['xpath'], $this->value($filter['value'], null, true));
     }
 
     /**
@@ -410,36 +410,13 @@ class Builder
      * @param mixed $value
      * @return string
      */
-    protected function value($value)
+    protected function value($value, $xpath = null, $forFunction = false)
     {
-        switch (true) {
-            case ($value instanceof DateTime):
-                return $this->date($value);
-
-            case (is_int($value)):
-            case (is_float($value)):
-                return (string)$value;
-
-            case (is_bool($value)):
-                return $value ? '\'true\'' : '\'false\'';
-
-            default:
-                // Choose quote style based on content to avoid escaping
-                if (strpos($value, '"') !== false && strpos($value, "'") === false) {
-                    // Contains double quotes but no single quotes - use single quotes
-                    return "'$value'";
-                } elseif (strpos($value, "'") !== false && strpos($value, '"') === false) {
-                    // Contains single quotes but no double quotes - use double quotes (no escaping needed)
-                    return "\"$value\"";
-                } elseif (strpos($value, '"') !== false && strpos($value, "'") !== false) {
-                    // Contains both - use single quotes and escape single quotes by doubling
-                    $escaped = str_replace("'", "''", $value);
-                    return "'$escaped'";
-                } else {
-                    // No quotes - use double quotes (standard)
-                    return "\"$value\"";
-                }
+        if ($value instanceof DateTime) {
+            return $this->date($value);
         }
+
+        return Value::format($value, $xpath, $forFunction);
     }
 
     /**
