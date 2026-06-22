@@ -136,6 +136,16 @@ class RestModel implements ArrayAccess, JsonSerializable
     }
 
     /**
+     * Get the attribute name Pace expects on update/create payloads.
+     *
+     * @return string
+     */
+    protected function attributeKeyName()
+    {
+        return Type::attributeKeyName($this->type, $this->attributes);
+    }
+
+    /**
      * Determine if an attribute exists and has a non-empty value.
      *
      * @param string $name
@@ -264,14 +274,9 @@ class RestModel implements ArrayAccess, JsonSerializable
                 return true;
             }
 
-            // Always include primaryKey so UpdateObject can identify the record
+            // Include the Pace object key using the API field name (usually "id", not "primaryKey")
             if ($apiKey !== null && $apiKey !== '') {
-                $dirty[RestClient::PRIMARY_KEY] = $apiKey;
-
-                $keyName = $this->guessPrimaryKeyName();
-                if ($keyName !== RestClient::PRIMARY_KEY) {
-                    $dirty[$keyName] = $apiKey;
-                }
+                $dirty[$this->attributeKeyName()] = $apiKey;
 
                 if ($this->isCompoundKey($apiKey)) {
                     // For compound keys like JobPart (job:jobPart), use individual fields
@@ -292,7 +297,7 @@ class RestModel implements ArrayAccess, JsonSerializable
             $attributes = $this->prepareAttributesForSave($dirty);
 
             if (getenv('PACE_API_DEBUG')) {
-                fwrite(STDERR, "[PaceAPI] Saving {$this->type}. Key: primaryKey=" . json_encode($apiKey) . ". Payload: " . json_encode($attributes) . "\n");
+                fwrite(STDERR, "[PaceAPI] Saving {$this->type}. Key: " . $this->attributeKeyName() . '=' . json_encode($apiKey) . ". Payload: " . json_encode($attributes) . "\n");
             }
 
             try {

@@ -130,20 +130,46 @@ class Type
      */
     public static function resolveKeyValue($type, array $attributes)
     {
-        if (!empty($attributes[RestClient::PRIMARY_KEY])) {
-            return $attributes[RestClient::PRIMARY_KEY];
+        $attributeKey = static::attributeKeyName($type, $attributes);
+
+        if (!empty($attributes[$attributeKey])) {
+            return $attributes[$attributeKey];
         }
 
-        $keyName = static::keyName($type) ?: static::camelize($type);
-
-        if (!empty($attributes[$keyName])) {
-            return $attributes[$keyName];
-        }
-
-        if (!empty($attributes['id'])) {
-            return $attributes['id'];
+        foreach ([RestClient::PRIMARY_KEY, 'id', static::keyName($type) ?: static::camelize($type)] as $fallback) {
+            if ($fallback !== $attributeKey && !empty($attributes[$fallback])) {
+                return $attributes[$fallback];
+            }
         }
 
         return null;
+    }
+
+    /**
+     * Get the attribute name Pace expects on update/create payloads.
+     *
+     * @param string $type
+     * @param array $attributes
+     * @return string
+     */
+    public static function attributeKeyName($type, array $attributes = [])
+    {
+        if ($keyName = static::keyName($type)) {
+            return $keyName;
+        }
+
+        if (array_key_exists('id', $attributes)) {
+            return 'id';
+        }
+
+        if (!empty($attributes[RestClient::PRIMARY_KEY])) {
+            return RestClient::PRIMARY_KEY;
+        }
+
+        if (array_key_exists(RestClient::PRIMARY_KEY, $attributes)) {
+            return RestClient::PRIMARY_KEY;
+        }
+
+        return static::camelize($type);
     }
 }

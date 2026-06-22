@@ -31,9 +31,21 @@ class TypeTest extends TestCase
 
     public function testResolveKeyValue()
     {
-        $this->assertEquals(1, Type::resolveKeyValue('CSR', ['primaryKey' => 1]));
         $this->assertEquals(2248386, Type::resolveKeyValue('EstimatePaper', ['id' => 2248386]));
+        $this->assertEquals(2248386, Type::resolveKeyValue('EstimatePaper', [
+            'id' => 2248386,
+            'primaryKey' => '2248386',
+        ]));
+        $this->assertEquals(1, Type::resolveKeyValue('CSR', ['primaryKey' => 1]));
         $this->assertEquals(99, Type::resolveKeyValue('FileAttachment', ['attachment' => 99]));
         $this->assertNull(Type::resolveKeyValue('EstimatePaper', ['primaryKey' => null, 'id' => null]));
+    }
+
+    public function testAttributeKeyName()
+    {
+        $this->assertEquals('id', Type::attributeKeyName('EstimatePaper', ['id' => 1, 'primaryKey' => '1']));
+        $this->assertEquals('primaryKey', Type::attributeKeyName('Customer', ['primaryKey' => 1]));
+        $this->assertEquals('attachment', Type::attributeKeyName('FileAttachment', ['attachment' => 99]));
+        $this->assertEquals('estimatePaper', Type::attributeKeyName('EstimatePaper', []));
     }
 }

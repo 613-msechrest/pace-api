@@ -180,6 +180,29 @@ describe('Object-Based API', function () {
         expect((string) $newEstimate->key())->not->toBe('1445642');
         expect($newEstimate->key())->not->toBeNull();
     });
+
+    it('can update an object', function () {
+        $estimate = $this->client->estimate->read('1445642');
+        $part = $estimate->estimateQuantities()->first();
+        $paper = $part->estimatePapers()->first();
+
+        $originalWidth = $paper->buySizeWidth;
+        $originalHeight = $paper->buySizeHeight;
+
+        $paper->buySizeWidth = (float) 25.0;
+        $paper->buySizeHeight = (float) 38.0;
+
+        expect($paper->save())->toBeTrue();
+
+        $paper = $this->client->estimatePaper->read($paper->id);
+
+        expect($paper->buySizeWidth)->toBe(25.0);
+        expect($paper->buySizeHeight)->toBe(38.0);
+
+        $paper->buySizeWidth = $originalWidth;
+        $paper->buySizeHeight = $originalHeight;
+        $paper->save();
+    });
 });
 
 describe('Mobile Services', function () {
