@@ -182,7 +182,7 @@ describe('Object-Based API', function () {
     });
 
     it('can update an object', function () {
-        $estimate = $this->client->estimate->read('1445642');
+        $estimate = $this->client->estimate->read('1784352');
         $part = $estimate->estimateQuantities()->first();
         $paper = $part->estimatePapers()->first();
 
