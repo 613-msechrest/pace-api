@@ -63,18 +63,10 @@ class CloneObject extends RestService
      */
     protected function resolveKey($object, array $attributes)
     {
-        if (!empty($attributes[RestClient::PRIMARY_KEY])) {
-            return (string) $attributes[RestClient::PRIMARY_KEY];
-        }
+        $key = $this->resolveObjectKey($object, $attributes);
 
-        $keyName = Type::keyName($object) ?: Type::camelize($object);
-
-        if (!empty($attributes[$keyName])) {
-            return (string) $attributes[$keyName];
-        }
-
-        if (!empty($attributes['id'])) {
-            return (string) $attributes['id'];
+        if ($key !== null) {
+            return $key;
         }
 
         throw new InvalidArgumentException("Unable to resolve primary key for {$object} clone.");

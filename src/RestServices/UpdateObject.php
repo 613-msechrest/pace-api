@@ -3,6 +3,7 @@
 namespace Pace\RestServices;
 
 use Pace\RestService;
+use Pace\Type;
 
 class UpdateObject extends RestService
 {
@@ -22,10 +23,10 @@ class UpdateObject extends RestService
             $params['txnId'] = $txnId;
         }
 
-        // Extract primary key for query parameters
-        $keyName = \Pace\Type::keyName($object) ?: 'primaryKey';
-        $key = $attributes[$keyName] ?? $attributes['primaryKey'] ?? null;
-        if ($key) {
+        $key = $this->resolveObjectKey($object, $attributes);
+
+        if ($key !== null) {
+            $keyName = Type::keyName($object) ?: 'primaryKey';
             $params['primaryKey'] = $key;
             $params[$keyName] = $key;
         }

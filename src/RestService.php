@@ -7,6 +7,20 @@ use Pace\Rest\HttpClient;
 abstract class RestService
 {
     /**
+     * Resolve the primary key value from update/clone attribute payloads.
+     *
+     * @param string $object
+     * @param array $attributes
+     * @return string|null
+     */
+    protected function resolveObjectKey($object, array $attributes)
+    {
+        $key = Type::resolveKeyValue($object, $attributes);
+
+        return $key !== null ? (string) $key : null;
+    }
+
+    /**
      * The HTTP client instance.
      *
      * @var HttpClient

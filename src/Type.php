@@ -120,4 +120,30 @@ class Type
 
         return null;
     }
+
+    /**
+     * Resolve the primary key value from object attributes.
+     *
+     * @param string $type
+     * @param array $attributes
+     * @return mixed
+     */
+    public static function resolveKeyValue($type, array $attributes)
+    {
+        if (!empty($attributes[RestClient::PRIMARY_KEY])) {
+            return $attributes[RestClient::PRIMARY_KEY];
+        }
+
+        $keyName = static::keyName($type) ?: static::camelize($type);
+
+        if (!empty($attributes[$keyName])) {
+            return $attributes[$keyName];
+        }
+
+        if (!empty($attributes['id'])) {
+            return $attributes['id'];
+        }
+
+        return null;
+    }
 }

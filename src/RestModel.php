@@ -155,11 +155,7 @@ class RestModel implements ArrayAccess, JsonSerializable
      */
     protected function resolveApiKey()
     {
-        if ($this->hasNonEmptyAttribute(RestClient::PRIMARY_KEY)) {
-            return $this->getAttribute(RestClient::PRIMARY_KEY);
-        }
-
-        return $this->key();
+        return Type::resolveKeyValue($this->type, $this->attributes);
     }
 
     /**
@@ -262,25 +258,25 @@ class RestModel implements ArrayAccess, JsonSerializable
         if ($this->exists) {
             // Update an existing object - only send changed attributes
             $dirty = $this->getDirty();
-            
-            // Ensure primary key is included (needed to identify the object)
-            $keyName = $this->guessPrimaryKeyName();
-            $keyValue = $this->getAttribute($keyName);
-            
+            $apiKey = $this->resolveApiKey();
+
             if (empty($dirty)) {
                 return true;
             }
-            
-            // Ensure the primary key is included in the payload
-            if ($keyName && $keyValue) {
-                if (!isset($dirty[$keyName])) {
-                    $dirty[$keyName] = $keyValue;
+
+            // Always include primaryKey so UpdateObject can identify the record
+            if ($apiKey !== null && $apiKey !== '') {
+                $dirty[RestClient::PRIMARY_KEY] = $apiKey;
+
+                $keyName = $this->guessPrimaryKeyName();
+                if ($keyName !== RestClient::PRIMARY_KEY) {
+                    $dirty[$keyName] = $apiKey;
                 }
 
-                if ($this->isCompoundKey($keyValue)) {
+                if ($this->isCompoundKey($apiKey)) {
                     // For compound keys like JobPart (job:jobPart), use individual fields
-                    $keyParts = $this->splitKey($keyValue);
-                    
+                    $keyParts = $this->splitKey($apiKey);
+
                     if ($this->type === 'JobPart' && count($keyParts) === 2) {
                         if (!isset($dirty['job'])) {
                             $dirty['job'] = $this->hasAttribute('job') ? $this->getAttribute('job') : $keyParts[0];
@@ -291,12 +287,12 @@ class RestModel implements ArrayAccess, JsonSerializable
                     }
                 }
             }
-            
+
             // Convert RestModel objects to their key values
             $attributes = $this->prepareAttributesForSave($dirty);
 
             if (getenv('PACE_API_DEBUG')) {
-                fwrite(STDERR, "[PaceAPI] Saving {$this->type}. Key: {$keyName}=" . json_encode($keyValue) . ". Payload: " . json_encode($attributes) . "\n");
+                fwrite(STDERR, "[PaceAPI] Saving {$this->type}. Key: primaryKey=" . json_encode($apiKey) . ". Payload: " . json_encode($attributes) . "\n");
             }
 
             try {
