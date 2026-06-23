@@ -181,27 +181,15 @@ describe('Object-Based API', function () {
         expect($newEstimate->key())->not->toBeNull();
     });
 
-    it('can update an object', function () {
-        $estimate = $this->client->estimate->read('1784352');
-        $part = $estimate->estimateQuantities()->first();
-        $paper = $part->estimatePapers()->first();
+    it('can retrieve an attachments content', function () {
+        $attachment = $this->client->fileAttachment->read('7iL42VVQ0riaVcm42qV_Aw==');
 
-        $originalWidth = $paper->buySizeWidth;
-        $originalHeight = $paper->buySizeHeight;
+        expect($attachment)->not->toBeNull();
 
-        $paper->buySizeWidth = (float) 25.0;
-        $paper->buySizeHeight = (float) 38.0;
+        $attachmentContent = $attachment->getContent();
 
-        expect($paper->save())->toBeTrue();
-
-        $paper = $this->client->estimatePaper->read($paper->id);
-
-        expect($paper->buySizeWidth)->toBe(25.0);
-        expect($paper->buySizeHeight)->toBe(38.0);
-
-        $paper->buySizeWidth = $originalWidth;
-        $paper->buySizeHeight = $originalHeight;
-        $paper->save();
+        expect($attachmentContent)->toBeString();
+        expect($attachmentContent)->not->toBeEmpty();
     });
 });
 

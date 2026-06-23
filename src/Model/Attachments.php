@@ -207,6 +207,12 @@ trait Attachments
             throw new BadMethodCallException('Call to method which only exists on FileAttachment');
         }
 
-        return $this->client->attachment()->getByKey($this->attachment)['content'];
+        $key = $this->key();
+
+        if ($key === null || $key === '') {
+            throw new BadMethodCallException('FileAttachment key is required to retrieve content.');
+        }
+
+        return $this->client->attachment()->getByKey($key)['content'];
     }
 }

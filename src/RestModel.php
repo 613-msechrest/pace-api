@@ -113,13 +113,18 @@ class RestModel implements ArrayAccess, JsonSerializable
      */
     protected function guessPrimaryKeyName()
     {
-        if ($this->hasNonEmptyAttribute(RestClient::PRIMARY_KEY)) {
-            return RestClient::PRIMARY_KEY;
+        if ($keyName = Type::keyName($this->type)) {
+            if ($this->hasNonEmptyAttribute($keyName)) {
+                return $keyName;
+            }
+
+            if ($this->hasAttribute($keyName)) {
+                return $keyName;
+            }
         }
 
-        // Try type-specific key name
-        if ($keyName = Type::keyName($this->type)) {
-            return $keyName;
+        if ($this->hasNonEmptyAttribute(RestClient::PRIMARY_KEY)) {
+            return RestClient::PRIMARY_KEY;
         }
 
         // Try common key names
@@ -548,6 +553,15 @@ class RestModel implements ArrayAccess, JsonSerializable
         // Always record the key used for the read; REST services identify objects by primaryKey.
         $model->setAttribute(RestClient::PRIMARY_KEY, $key);
         $model->original[RestClient::PRIMARY_KEY] = $key;
+
+        // Ensure irregular key fields are set (e.g. FileAttachment.attachment).
+        if ($typeKeyName = Type::keyName($model->type)) {
+            $existingTypeKey = $model->getAttribute($typeKeyName);
+            if ($existingTypeKey === null || $existingTypeKey === '') {
+                $model->setAttribute($typeKeyName, $key);
+                $model->original[$typeKeyName] = $key;
+            }
+        }
 
         // Ensure the type-specific key is set if the server didn't return it (or returned null).
         // Some types (e.g. JobProduct) return key parts (job, product) but primaryKey/jobProduct as null,

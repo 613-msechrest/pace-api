@@ -32,6 +32,18 @@ class ModelAttachmentsTest extends TestCase
         $this->assertEquals('Some random string', $model->getContent());
     }
 
+    public function testGetContentUsesPrimaryKeyWhenAttachmentFieldIsMissing()
+    {
+        $client = Mockery::mock(Client::class);
+        $service = Mockery::mock(AttachmentService::class);
+        $client->shouldReceive('attachment')->andReturn($service);
+        $service->shouldReceive('getByKey')->with('abcd1234')->andReturn([
+            'content' => 'Some random string',
+        ]);
+        $model = new Model($client, 'FileAttachment', ['primaryKey' => 'abcd1234']);
+        $this->assertEquals('Some random string', $model->getContent());
+    }
+
     public function testAttachFile()
     {
         $client = Mockery::mock(Client::class);
