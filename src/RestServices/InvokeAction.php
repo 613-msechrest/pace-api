@@ -2,6 +2,7 @@
 
 namespace Pace\RestServices;
 
+use Pace\RestModel;
 use Pace\RestService;
 use Pace\Type;
 
@@ -26,7 +27,8 @@ class InvokeAction extends RestService
         [$queryParams, $body] = $this->resolveInvokePayload($action, (array) $object);
         $params = array_merge($params, $queryParams);
 
-        $data = empty($body) ? [] : ['object' => $body];
+        $body = $this->prepareInvokeBody($body);
+        $data = $this->formatInvokeBody($action, $body);
 
         return $this->http->post("InvokeAction/{$action}", $data, $params);
     }
@@ -76,6 +78,88 @@ class InvokeAction extends RestService
         }
 
         return $parameters;
+    }
+
+    /**
+     * Convert RestModel instances to minimal Pace object references for invoke bodies.
+     *
+     * @param array $body
+     * @return array
+     */
+    protected function prepareInvokeBody(array $body)
+    {
+        return $this->prepareInvokeValue($body);
+    }
+
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
+    protected function prepareInvokeValue($value)
+    {
+        if ($value instanceof RestModel) {
+            return $this->modelToReference($value);
+        }
+
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        $prepared = [];
+
+        foreach ($value as $key => $item) {
+            $prepared[$key] = $this->prepareInvokeValue($item);
+        }
+
+        return $prepared;
+    }
+
+    /**
+     * Build the minimal object reference Pace expects in invoke payloads.
+     *
+     * @param RestModel $model
+     * @return array
+     */
+    protected function modelToReference(RestModel $model)
+    {
+        $attributes = $model->attributes();
+        $refKey = Type::attributeKeyName($model->type(), $attributes);
+        $refValue = Type::resolveKeyValue($model->type(), $attributes);
+
+        return [$refKey => $refValue];
+    }
+
+    /**
+     * Format the POST body for a given invoke action.
+     *
+     * @param string $action
+     * @param array $body
+     * @return array
+     */
+    protected function formatInvokeBody($action, array $body)
+    {
+        if ($body === []) {
+            return [];
+        }
+
+        if ($this->usesDirectBody($action)) {
+            return $body;
+        }
+
+        return ['object' => $body];
+    }
+
+    /**
+     * Invoke actions whose request body is the schema itself, not wrapped in "object".
+     *
+     * @param string $action
+     * @return bool
+     */
+    protected function usesDirectBody($action)
+    {
+        return in_array($action, [
+            'convertEstimateToJob',
+        ], true);
     }
 
     /**

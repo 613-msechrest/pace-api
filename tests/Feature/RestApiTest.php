@@ -191,6 +191,19 @@ describe('Object-Based API', function () {
         expect($attachmentContent)->toBeString();
         expect($attachmentContent)->not->toBeEmpty();
     });
+
+    it('can invoke an action to convert an estimate to a job', function () {
+        $action = $this->client->invokeAction('convertEstimateToJob', [
+            'estimate' => ['id' => '1784352'],
+            'jobType' => ['id' => 9],
+            'createNewJob' => true,
+        ]);
+
+        dd($action);
+
+        expect($action)->toBeInstanceOf(Pace\RestModel::class);
+        expect($action->job)->toBe('1445642');
+    });
 });
 
 describe('Mobile Services', function () {
